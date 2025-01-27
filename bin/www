@@ -1,0 +1,2 @@
+const info = 'Radisson server on the way.';
+console.log({info:info});
