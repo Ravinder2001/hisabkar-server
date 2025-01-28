@@ -14,4 +14,3 @@ router.post("/login", validateBody(schemas.loginUser), guestDbValidate.validateL
 router.post("/google-signin", validateBody(schemas.googleLogin), UserController.googleLogin);
 
 module.exports = router;
-//negi chodu
