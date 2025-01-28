@@ -45,4 +45,18 @@ module.exports = {
       return commonController.handleAsyncError(error, res);
     }
   },
+  validateExpenseId: async (req, res, next) => {
+    const { expense_id } = req.params;
+    try {
+      const status = await dbValidation(expense_id, "tbl_expenses", "expense_id");
+      if (status === HttpStatus.BAD_REQUEST) {
+        return commonController.errorResponse(res, "Not a valid Expense id", HttpStatus.BAD_REQUEST);
+      } else if (status === HttpStatus.NOT_FOUND) {
+        return commonController.errorResponse(res, `Expense not found with the id ${expense_id}`, HttpStatus.NOT_FOUND);
+      }
+      next();
+    } catch (error) {
+      return commonController.handleAsyncError(error, res);
+    }
+  },
 };

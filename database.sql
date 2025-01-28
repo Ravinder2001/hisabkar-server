@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS tbl_group_members (
 CREATE TABLE IF NOT EXISTS tbl_expenses (
   expense_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   group_id INT NOT NULL REFERENCES tbl_groups(group_id),
+  expense_type_id INT NOT NULL REFERENCES tbl_expense_types(expense_type_id),
   expense_name VARCHAR(255) NOT NULL,
   description TEXT,
   amount NUMERIC(10, 2) NOT NULL,
