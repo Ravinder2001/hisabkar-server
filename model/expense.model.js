@@ -193,4 +193,79 @@ module.exports = {
       throw error;
     }
   },
+  deleteExpense: async (expenseId) => {
+    try {
+      await client.query("BEGIN");
+
+      // Step 1: Fetch the Expense Details
+      const expenseResult = await client.query(`SELECT group_id, paid_by FROM tbl_expenses WHERE expense_id = $1`, [expenseId]);
+
+      if (expenseResult.rows.length === 0) {
+        throw new Error("Expense not found");
+      }
+
+      const { group_id, paid_by } = expenseResult.rows[0];
+
+      // Step 2: Fetch Expense Members
+      const membersResult = await client.query(`SELECT user_id, amount FROM tbl_expense_members WHERE expense_id = $1`, [expenseId]);
+
+      const members = membersResult.rows;
+
+      // Step 3: Remove Expense Members
+      await client.query(`DELETE FROM tbl_expense_members WHERE expense_id = $1`, [expenseId]);
+
+      // Step 4: Remove Expense from tbl_expenses
+      await client.query(`DELETE FROM tbl_expenses WHERE expense_id = $1`, [expenseId]);
+
+      // Step 5: Update Group Pairs for Expense Removal
+      for (const member of members) {
+        const sender = member.user_id;
+        const receiver = paid_by; // Paid by the one who initially paid for the expense
+        const pairAmount = member.amount;
+
+        if (sender !== receiver) {
+          // Subtract from Sender → Receiver
+          await client.query(
+            `UPDATE tbl_group_pairs
+             SET amount = amount - $1
+             WHERE group_id = $2 AND sender_user = $3 AND receiver_user = $4`,
+            [pairAmount, group_id, sender, receiver]
+          );
+
+          // Subtract from Receiver → Sender
+          await client.query(
+            `UPDATE tbl_group_pairs
+             SET amount = amount + $1
+             WHERE group_id = $2 AND sender_user = $3 AND receiver_user = $4`,
+            [pairAmount, group_id, receiver, sender]
+          );
+
+          // Ensure non-existent pairs are created (optional for consistency)
+          await client.query(
+            `INSERT INTO tbl_group_pairs (group_id, sender_user, receiver_user, amount) 
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (group_id, sender_user, receiver_user)
+             DO NOTHING`,
+            [group_id, sender, receiver, 0]
+          );
+
+          await client.query(
+            `INSERT INTO tbl_group_pairs (group_id, sender_user, receiver_user, amount) 
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (group_id, sender_user, receiver_user)
+             DO NOTHING`,
+            [group_id, receiver, sender, 0]
+          );
+        }
+      }
+
+      await client.query("COMMIT");
+      console.log("Expense deleted successfully.");
+      return;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.error("Error in deleting expense:", error.message);
+      throw error;
+    }
+  },
 };

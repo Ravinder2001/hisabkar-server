@@ -34,4 +34,13 @@ module.exports = {
       common.handleAsyncError(error, res);
     }
   },
+  deleteExpense: async (req, res) => {
+    try {
+      await expenseModel.deleteExpense(req.params.expense_id);
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
 };

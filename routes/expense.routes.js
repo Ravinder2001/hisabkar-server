@@ -11,5 +11,6 @@ const router = express.Router();
 router.post("/addExpense/:group_id", authenticateJWT, validateBody(schemas.addExpense), validateData.validateGroupId, validateExpenseData.validateExpenseAmount, ExpenseController.addExpense);
 router.put("/editExpense/:expense_id", authenticateJWT, validateBody(schemas.addExpense), validateData.validateExpenseId, validateExpenseData.validateExpenseAmount, ExpenseController.editExpense);
 router.get("/getAllExpenses/:group_id", authenticateJWT, validateData.validateGroupId, ExpenseController.getAllExpenses);
+router.delete("/:expense_id", authenticateJWT, validateData.validateExpenseId, ExpenseController.deleteExpense);
 
 module.exports = router;
