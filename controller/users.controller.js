@@ -27,7 +27,7 @@ module.exports = {
   },
   register: async (req, res) => {
     try {
-      console.log(req.body);
+      await userModel.register(req.body);
       return common.successResponse(res, Messages.USER_REGISTER_SUCCESS, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);

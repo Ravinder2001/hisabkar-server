@@ -65,21 +65,25 @@ module.exports = {
   },
   register: async (values) => {
     try {
-      const { username, email, password, full_name, gender } = values;
+      await client.query("BEGIN");
+      const updateUserRes = await client.query(
+        `
+        UPDATE tbl_users SET name = $1, is_verified = TRUE WHERE email = $2 RETURNING user_id
+      `,
+        [values.name, values.email]
+      );
 
-      const query = `
-        INSERT INTO tbl_users 
-        (username, email, password, full_name, gender) 
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING user_id, username;
-      `;
-
-      const params = [username, email, password, full_name, gender];
-
-      const result = await client.query(query, params);
-
-      return result.rows[0];
+      const UserID = updateUserRes.rows[0].user_id;
+      await client.query(
+        `
+        INSERT INTO tbl_upi_address(user_id,upi_address) VALUES($1,$2)
+      `,
+        [UserID, values.upiAddress]
+      );
+      await client.query("COMMIT");
+      return;
     } catch (error) {
+      await client.query("ROLLBACK");
       console.error("Error in registering user:", error.message);
       throw error;
     }
