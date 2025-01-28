@@ -78,6 +78,9 @@ let Messages = {
   // Chat
   MSG_DELETED: "This message was deleted.",
   CHANNEL_CREATED: "Channel created successfully.",
+
+  //group
+  ALREADY_MEMBER: "You have already joined the group",
 };
 
 module.exports = Messages;

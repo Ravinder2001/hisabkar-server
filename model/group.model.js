@@ -59,4 +59,15 @@ module.exports = {
       throw error;
     }
   },
+  getAllGroupMemebers: async (grouoId) => {
+    try {
+      // Insert the group with the unique code
+      let groupQuery = await client.query(`SELECT * FROM tbl_group_members WHERE group_id = $1`, [grouoId]);
+
+      return groupQuery.rows;
+    } catch (error) {
+      console.error("Error in creating group:", error.message);
+      throw error;
+    }
+  },
 };

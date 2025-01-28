@@ -8,6 +8,6 @@ const validateData = require("../middleware/groupValidation");
 const router = express.Router();
 
 router.post("/createGroup", authenticateJWT, validateBody(schemas.createGroup), GroupController.createGroup);
-router.post("/joinGroup", authenticateJWT, validateBody(schemas.joinGroup), validateData.validateGroup, GroupController.joinGroup);
+router.post("/joinGroup", authenticateJWT, validateBody(schemas.joinGroup), validateData.validateGroup, validateData.validateExistingGroup, GroupController.joinGroup);
 
 module.exports = router;
