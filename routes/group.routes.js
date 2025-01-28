@@ -10,5 +10,6 @@ const router = express.Router();
 router.post("/createGroup", authenticateJWT, validateBody(schemas.createGroup), GroupController.createGroup);
 router.post("/joinGroup", authenticateJWT, validateBody(schemas.joinGroup), validateData.validateGroup, validateData.validateExistingGroup, GroupController.joinGroup);
 router.get("/", authenticateJWT, GroupController.getAllGroups);
+router.get("/single/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupDataById);
 
 module.exports = router;

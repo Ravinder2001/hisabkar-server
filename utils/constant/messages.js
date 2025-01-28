@@ -19,6 +19,7 @@ let Messages = {
   INVALID_PAYLOAD: "Not a valid payload",
   ALREADY_EXISTS: (field, fieldName) => `${fieldName}: ${field} is already exists.`,
   WRONG_OTP: "OTP is incorrect",
+  INVALID_AMOUNT: (totalAmount, amount) => `Total of members' amounts (${totalAmount}) must equal main amount (${amount}).`,
 
   // Authentication & Authorization
   AUTH_REQUIRED: "Authentication required. Please log in.",

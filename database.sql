@@ -70,14 +70,15 @@ CREATE TABLE IF NOT EXISTS tbl_expense_members (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS tbl_expense_pairs (
+CREATE TABLE IF NOT EXISTS tbl_group_pairs (
   pair_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   group_id INT NOT NULL REFERENCES tbl_groups(group_id),
   sender_user INT NOT NULL REFERENCES tbl_users(user_id),
   receiver_user INT NOT NULL REFERENCES tbl_users(user_id),
   amount NUMERIC(10, 2) NOT NULL,
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (group_id, sender_user, receiver_user) -- Unique constraint added here
 );
 
 

@@ -118,4 +118,57 @@ module.exports = {
       throw error;
     }
   },
+  getGroupDataById: async (values) => {
+    try {
+      // SQL query to get all the required information
+      const query = `
+        SELECT
+          g.group_id,
+          g.group_name,
+          gt.type_name AS group_type,
+          g.total_amount,
+          g.is_settled,
+          COUNT(gm.member_id) AS total_members_count,
+          COUNT(e.expense_id) AS total_expenses_count,
+          CASE 
+            WHEN g.admin_user = $2 THEN true
+            ELSE false
+          END AS is_you_admin,
+          ARRAY(
+            SELECT JSON_BUILD_OBJECT('name', u.name, 'avatar', u.avatar)
+            FROM tbl_users u
+            JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
+            WHERE gm2.group_id = g.group_id
+          ) AS members
+        FROM tbl_groups g
+        LEFT JOIN tbl_group_types gt ON g.group_type_id = gt.group_type_id
+        LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
+        LEFT JOIN tbl_expenses e ON e.group_id = g.group_id
+        WHERE g.group_id = $1
+        GROUP BY g.group_id, gt.type_name
+      `;
+
+      // Execute the query with the provided groupId
+      const groupQuery = await client.query(query, [values.groupId, values.userId]);
+
+      if (groupQuery.rows.length === 0) {
+        throw new Error("Group not found");
+      }
+
+      // Structure the result
+      const groupData = groupQuery.rows[0];
+      const result = {
+        ...groupData,
+        members: groupData.members.map((member) => ({
+          name: member.name,
+          avatar: member.avatar,
+        })),
+      };
+
+      return result;
+    } catch (error) {
+      console.error("Error in fetching group data:", error.message);
+      throw error;
+    }
+  },
 };

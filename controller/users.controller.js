@@ -39,6 +39,7 @@ module.exports = {
   register: async (req, res) => {
     try {
       let avatarImage = generateAvatarImage();
+      console.log("🚀  avatarImage:", avatarImage);
       await userModel.register({ ...req.body, avatar: avatarImage });
       return common.successResponse(res, Messages.USER_REGISTER_SUCCESS, HttpStatus.OK);
     } catch (error) {

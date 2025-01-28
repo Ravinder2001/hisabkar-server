@@ -34,9 +34,19 @@ module.exports = {
     try {
       let groupList = await groupModel.getAllGroups(req.user.user_id);
 
-      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, {
-        data: groupList,
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, groupList, groupList.length);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  getGroupDataById: async (req, res) => {
+    try {
+      let groupList = await groupModel.getGroupDataById({
+        groupId: req.params.group_id,
+        userId: req.user.user_id,
       });
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, groupList);
     } catch (error) {
       common.handleAsyncError(error, res);
     }
