@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const { VARIABLES } = require("../../utils/constant/constant");
 
 module.exports = {
   registerUser: Joi.object().keys({
@@ -37,13 +36,16 @@ module.exports = {
       "string.email": "Email must be a valid email address",
       "any.required": "Email is required",
     }),
-    password: Joi.string().min(8).max(50).pattern(new RegExp(VARIABLES.REGEX)).required().messages({
-      "string.base": "Password must be a string",
-      "string.min": "Password must be at least 8 characters long",
-      "string.max": "Password must be at most 50 characters long",
-      "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
-      "any.required": "Password is required",
-    }),
+    otp: Joi.string()
+      .length(6)
+      .pattern(/^\d{6}$/)
+      .required()
+      .messages({
+        "string.base": "OTP must be a string",
+        "string.length": "OTP must be exactly 6 digits long",
+        "string.pattern.base": "OTP must contain only digits",
+        "any.required": "OTP is required",
+      }),
   }),
   googleLogin: Joi.object().keys({
     token: Joi.string().required().messages({

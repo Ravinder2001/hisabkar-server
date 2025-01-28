@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const config = require("../configuration/config");
-const { HttpStatus, USER_TYPES } = require("../utils/constant/constant");
+const { HttpStatus } = require("../utils/constant/constant");
 /**
  * Sends a successful JSON response with the specified message, optional status code, and optional data.
  * @author Ravinder Singh Negi
@@ -69,8 +69,9 @@ const generateUserToken = (data) => {
     {
       iss: "hisabkar-server",
       id: data.user_id,
-      name: data.username,
-      role: USER_TYPES.USER,
+      name: data.name,
+      role: data.role,
+      avatar: data.avatar,
       iat: Math.round(new Date().getTime() / 1000),
       // exp: Math.round(new Date().getTime() / 1000) + 24 * 60 * 60,
     },

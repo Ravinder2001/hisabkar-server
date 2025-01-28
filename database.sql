@@ -3,9 +3,10 @@ CREATE TABLE IF NOT EXISTS tbl_users (
   email VARCHAR(255) UNIQUE NOT NULL,               
   name VARCHAR(100),          
   avatar TEXT,
-  otp NUMERIC(10, 2) NOT NULL,                 
-  is_verified BOOLEAN DEFAULT FALSE,
-  is_active BOOLEAN DEFAULT TRUE,
+  otp NUMERIC(10, 2) NOT NULL,
+  role VARCHAR(10) NOT NULL DEFAULT 'USER' CHECK (role IN ('ADMIN', 'USER')),            
+  is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -13,7 +14,7 @@ CREATE TABLE IF NOT EXISTS tbl_upi_address (
   upi_address_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id INT NOT NULL REFERENCES tbl_users(user_id) ON DELETE CASCADE,
   upi_address VARCHAR(100) NOT NULL,              
-  is_active BOOLEAN DEFAULT TRUE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
  

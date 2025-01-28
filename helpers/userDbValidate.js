@@ -1,11 +1,10 @@
 const userModel = require("../model/users.model");
 const common = require("../controller/common.controller");
-const { isValidPassword } = require("../utils/common/common");
 const Messages = require("../utils/constant/messages");
 
 module.exports = {
   async validateLogin(req, res, next) {
-    const { email, password } = req.value.body;
+    const { email } = req.value.body;
 
     try {
       let err = {};
@@ -15,11 +14,6 @@ module.exports = {
         err.message = Messages.USER_NOT_FOUND;
       } else if (!userExist.is_active) {
         err.message = Messages.USER_DEACTIVATED;
-      } else {
-        const isMatch = await isValidPassword(password, userExist.password);
-        if (!isMatch) {
-          err.message = Messages.WRONG_PASSWORD;
-        }
       }
 
       if (common.isEmptyObj(err)) {

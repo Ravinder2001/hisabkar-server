@@ -25,6 +25,20 @@ module.exports = {
       common.handleAsyncError(error, res);
     }
   },
+  sendLoginOTP: async (req, res) => {
+    try {
+      let otp = generateOTP();
+      const email = req.params.email;
+      await userModel.sendLoginOTP({ email, otp });
+      await sendEmail(req.params.email, "otp", {
+        otp: otp,
+      });
+      console.log(`OTP-${otp} for ${email}`);
+      return common.successResponse(res, Messages.OTP_SENT, HttpStatus.OK);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
   register: async (req, res) => {
     try {
       await userModel.register(req.body);

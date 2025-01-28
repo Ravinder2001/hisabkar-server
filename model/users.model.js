@@ -51,6 +51,23 @@ module.exports = {
       throw error;
     }
   },
+  sendLoginOTP: async (values) => {
+    try {
+      const { email, otp } = values;
+
+      // Attempt to update OTP for an existing user
+      await client.query(
+        `
+        UPDATE tbl_users SET otp = $1 WHERE email = $2 RETURNING *
+        `,
+        [otp, email]
+      );
+      return;
+    } catch (error) {
+      console.error("Error in sending OTP:", error.message);
+      throw error;
+    }
+  },
   validateOTP: async (values) => {
     try {
       const { email, otp } = values;

@@ -1,6 +1,7 @@
 module.exports = {
   USER_TYPES: {
-    USER: "User",
+    ADMIN: "ADMIN",
+    USER: "USER",
   },
   TIME_FORMAT: {
     STANDARD_TIME_FORMAT: "YYYY-MM-DD HH:mm:ss",
