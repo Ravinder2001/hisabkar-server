@@ -40,8 +40,8 @@ async function sendEmail(to, type, data = {}) {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${to}: ${info.response}`);
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${to}`);
   } catch (error) {
     console.error(`Error sending email to ${to}:`, error);
     throw error;

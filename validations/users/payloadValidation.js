@@ -5,7 +5,7 @@ module.exports = {
   registerUser: Joi.object().keys({
     email: Joi.string().email().required().messages({
       "string.base": "Email must be a string",
-      "string.email": "Email must be a  valid email address",
+      "string.email": "Email must be a valid email address",
       "any.required": "Email is required",
     }),
     name: Joi.string().min(1).max(100).required().messages({
@@ -20,6 +20,16 @@ module.exports = {
       "string.max": "UPI Address must be at most 100 characters long",
       "any.required": "UPI Address is required",
     }),
+    otp: Joi.string()
+      .length(6)
+      .pattern(/^\d{6}$/)
+      .required()
+      .messages({
+        "string.base": "OTP must be a string",
+        "string.length": "OTP must be exactly 6 digits long",
+        "string.pattern.base": "OTP must contain only digits",
+        "any.required": "OTP is required",
+      }),
   }),
   loginUser: Joi.object().keys({
     email: Joi.string().email().required().messages({

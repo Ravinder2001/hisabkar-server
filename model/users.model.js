@@ -1,40 +1,63 @@
 const client = require("../configuration/db");
 
 module.exports = {
+  checkNonVerifiedEmail: async (email) => {
+    try {
+      const emailCheck = await client.query(`SELECT COUNT(user_id) FROM tbl_users WHERE email = $1 AND is_verified = FALSE`, [email]);
+
+      return emailCheck.rows[0].count;
+    } catch (error) {
+      console.error("Error in sending OTP:", error.message);
+      throw error;
+    }
+  },
+  checkVerifiedEmail: async (email) => {
+    try {
+      const emailCheck = await client.query(`SELECT COUNT(user_id) FROM tbl_users WHERE email = $1 AND is_verified = TRUE`, [email]);
+
+      return emailCheck.rows[0].count;
+    } catch (error) {
+      console.error("Error in sending OTP:", error.message);
+      throw error;
+    }
+  },
   sendOTP: async (values) => {
     try {
       const { email, otp } = values;
-      const emailCheck = await client.query(
+
+      // Attempt to update OTP for an existing user
+      const updateResult = await client.query(
         `
-        SELECT user_id, is_verified FROM tbl_users WHERE email = $1
+        UPDATE tbl_users SET otp = $1 WHERE email = $2 RETURNING *
         `,
-        [email]
+        [otp, email]
       );
 
-      if (emailCheck.rows.length > 0) {
-        const user = emailCheck.rows[0];
-        if (user.is_verified) {
-          throw new Error("Email already exists and is verified. Please try another email.");
-        } else {
-          // Update OTP for unverified user
-          const updateResult = await client.query(
-            `
-            UPDATE tbl_users SET otp = $1 WHERE email = $2
-            `,
-            [otp, email]
-          );
-          return updateResult.rows[0];
-        }
+      if (updateResult.rows.length > 0) {
+        // User exists and OTP is updated
+        return updateResult.rows[0];
       } else {
-        // Insert new user with OTP
-        const result = await client.query(
+        // Insert new user with OTP if no existing user is found
+        const insertResult = await client.query(
           `
-          INSERT INTO tbl_users(email, otp) VALUES($1, $2)
+          INSERT INTO tbl_users(email, otp) VALUES($1, $2) RETURNING *
           `,
           [email, otp]
         );
-        return result.rows[0];
+        return insertResult.rows[0];
       }
+    } catch (error) {
+      console.error("Error in sending OTP:", error.message);
+      throw error;
+    }
+  },
+  validateOTP: async (values) => {
+    try {
+      const { email, otp } = values;
+
+      // Attempt to update OTP for an existing user
+      const userData = await client.query(`SELECT COUNT(user_id) FROM tbl_users WHERE email = $1 AND otp = $2`, [email, otp]);
+      return userData.rows[0].count;
     } catch (error) {
       console.error("Error in sending OTP:", error.message);
       throw error;

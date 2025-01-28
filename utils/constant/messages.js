@@ -18,19 +18,20 @@ let Messages = {
   PARAMETERS_REQ: "Request parameters are required",
   INVALID_PAYLOAD: "Not a valid payload",
   ALREADY_EXISTS: (field, fieldName) => `${fieldName}: ${field} is already exists.`,
+  WRONG_OTP: "OTP is incorrect",
 
   // Authentication & Authorization
   AUTH_REQUIRED: "Authentication required. Please log in.",
   LOGIN_SUCCESS: "Login successful.",
-  LOGIN_FAILED: "Login failed. Check your credentials.",
+  LOGIN_FAILED: "Login failed. Please check your credentials.",
   LOGOUT_SUCCESS: "Logout successful.",
   TOKEN_EXPIRED: "Your session has expired. Please log in again.",
-  ACCESS_DENIED: "Access denied.",
+  ACCESS_DENIED: "Access denied. You do not have the necessary permissions.",
   PASSWORD_RESET: "Password reset successful.",
-  INVALID_CREDS: "Invalid credentials.",
+  INVALID_CREDS: "Invalid credentials provided.",
   INVALID_USER_ID: "Invalid user ID.",
-  WRONG_PASSWORD: "Password did not match, Please check.",
-  OTP_SENT:"OTP sent to email address",
+  WRONG_PASSWORD: "Incorrect password. Please try again.",
+  OTP_SENT: "OTP has been sent to your email address.",
 
   // Database Operations
   DATA_FETCH_SUCCESS: "Data fetched successfully.",
@@ -53,7 +54,6 @@ let Messages = {
   USER_ALREADY_EXISTS: "User already exists.",
   USER_DEACTIVATED: "Your account is currently deactivated. Please contact the administrator for assistance.",
   FRIEND_REQ: "Friend request sent successfully.",
-  FRIEND_REQ_ACCEPT: "Friend request accepted.",
 
   // Form Validation
   REQUIRED_FIELD: (field) => `${field} is required.`,

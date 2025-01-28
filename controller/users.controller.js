@@ -14,10 +14,12 @@ module.exports = {
   sendOTP: async (req, res) => {
     try {
       let otp = generateOTP();
-      await userModel.sendOTP({ email: req.params.email_address, otp });
-      await sendEmail(req.params.email_address, "otp", {
+      const email = req.params.email;
+      await userModel.sendOTP({ email, otp });
+      await sendEmail(req.params.email, "otp", {
         otp: otp,
       });
+      console.log(`OTP-${otp} for ${email}`);
       return common.successResponse(res, Messages.OTP_SENT, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);
@@ -25,6 +27,7 @@ module.exports = {
   },
   register: async (req, res) => {
     try {
+      console.log(req.body);
       return common.successResponse(res, Messages.USER_REGISTER_SUCCESS, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);
