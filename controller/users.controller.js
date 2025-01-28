@@ -7,8 +7,9 @@ const config = require("../configuration/config");
 const generateOTP = require("../helpers/generateOTP");
 const sendEmail = require("../helpers/sendEmail");
 const emailContent = require("../utils/constant/emailContent");
+const generateAvatarImage = require("../helpers/generateAvatar");
 
-const client = new OAuth2Client(config.google.google_client_id);
+const client = new OAuth2Client(config.GOOGLE.GOOGLE_CLIENT_ID);
 
 module.exports = {
   sendOTP: async (req, res) => {
@@ -37,7 +38,8 @@ module.exports = {
   },
   register: async (req, res) => {
     try {
-      await userModel.register(req.body);
+      let avatarImage = generateAvatarImage();
+      await userModel.register({ ...req.body, avatar: avatarImage });
       return common.successResponse(res, Messages.USER_REGISTER_SUCCESS, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);

@@ -19,7 +19,7 @@ const Messages = require("../../utils/constant/messages");
  */
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: config.jwt.secretKey,
+  secretOrKey: config.JWT.SECRET_KEY,
 };
 
 /**

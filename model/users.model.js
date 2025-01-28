@@ -85,9 +85,9 @@ module.exports = {
       await client.query("BEGIN");
       const updateUserRes = await client.query(
         `
-        UPDATE tbl_users SET name = $1, is_verified = TRUE WHERE email = $2 RETURNING user_id
+        UPDATE tbl_users SET name = $1,avatar = $2, is_verified = TRUE WHERE email = $3 RETURNING user_id
       `,
-        [values.name, values.email]
+        [values.name, values.avatar, values.email]
       );
 
       const UserID = updateUserRes.rows[0].user_id;

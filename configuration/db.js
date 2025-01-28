@@ -7,13 +7,13 @@ let client;
 async function initializeDatabase() {
   try {
     if (process.env.NODE_ENV == "local") {
-      const { user, host, database, password, port } = config.DB;
+      const { USER, HOST, DATABASE, PASSWORD, PORT } = config.DB;
       client = new Client({
-        user: user,
-        host: host,
-        database: database,
-        password: password,
-        port: port,
+        user: USER,
+        host: HOST,
+        database: DATABASE,
+        password: PASSWORD,
+        port: PORT,
       });
 
       // Connection events

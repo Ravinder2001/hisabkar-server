@@ -59,14 +59,62 @@ module.exports = {
       throw error;
     }
   },
-  getAllGroupMemebers: async (grouoId) => {
+  getAllGroupMemebers: async (groupId) => {
     try {
       // Insert the group with the unique code
-      let groupQuery = await client.query(`SELECT * FROM tbl_group_members WHERE group_id = $1`, [grouoId]);
+      let groupQuery = await client.query(`SELECT * FROM tbl_group_members WHERE group_id = $1`, [groupId]);
 
       return groupQuery.rows;
     } catch (error) {
       console.error("Error in creating group:", error.message);
+      throw error;
+    }
+  },
+  getAllGroups: async (userId) => {
+    try {
+      // SQL query to get all the required information
+      const query = `
+        SELECT
+          g.group_id,
+          g.group_name,
+          gt.type_name AS group_type,
+          g.total_amount,
+          g.is_settled,
+          COUNT(gm.member_id) AS total_members_count,
+          CASE 
+            WHEN g.admin_user = $1 THEN true
+            ELSE false
+          END AS is_you_admin,
+          ARRAY(
+            SELECT u.avatar
+            FROM tbl_users u
+            JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
+            WHERE gm2.group_id = g.group_id
+          ) AS members_avatars
+        FROM tbl_groups g
+        LEFT JOIN tbl_group_types gt ON g.group_type_id = gt.group_type_id
+        LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
+        WHERE gm.user_id = $1
+        GROUP BY g.group_id, gt.type_name
+      `;
+
+      // Execute the query with the provided userId
+      const groupQuery = await client.query(query, [userId]);
+
+      // Map the result to include 'members' with avatars
+      const groups = groupQuery.rows.map((group) => {
+        return {
+          ...group,
+          members: group.members_avatars.map((avatar) => ({
+            avatar,
+          })),
+          members_avatars: undefined, // Removing the raw avatars array
+        };
+      });
+
+      return groups;
+    } catch (error) {
+      console.error("Error in fetching groups:", error.message);
       throw error;
     }
   },
