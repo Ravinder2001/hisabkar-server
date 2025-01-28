@@ -13,30 +13,23 @@ const transporter = nodemailer.createTransport({
 /**
  * Send email with dynamic options
  * @param {string} to - Recipient email address
- * @param {string} type - Email type ("otp" or "joining")
- * @param {object} data - Additional data for email (e.g., OTP or user details)
+ * @param {string} subject - Email subject
+ * @param {string} text - Email text content
  */
-async function sendEmail(to, type, data = {}) {
-  let subject = "";
-  let text = "";
-
-  // Define email content based on type
-  if (type === "otp") {
-    subject = "Your OTP for Hisabkar";
-    text = `Hello,\n\nYour OTP for Hisabkar is: ${data.otp}\n\nPlease use this OTP within 10 minutes.\n\nRegards,\nHisabkar Team`;
-  } else if (type === "joining") {
-    subject = "Welcome to Hisabkar!";
-    text = `Hello ${data.name || "User"},\n\nWelcome to Hisabkar! We are excited to have you onboard.\n\nYour account has been successfully created.\n\nRegards,\nHisabkar Team`;
-  } else {
-    throw new Error("Invalid email type specified.");
+async function sendEmail(to, data) {
+  if (!to) {
+    throw new Error("Recipient email is required.");
+  }
+  if (!data.subject || !data.text) {
+    throw new Error("Email Subject, and text are required.");
   }
 
   // Mail options
   const mailOptions = {
     from: `"Hisabkar" <${config.nodemailer.email}>`, // Sender email
     to, // Recipient email
-    subject,
-    text,
+    subject: data.subject, // Subject line
+    text: data.text, // Plain text body
   };
 
   try {
