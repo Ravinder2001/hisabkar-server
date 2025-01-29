@@ -64,6 +64,8 @@ module.exports = {
     try {
       await client.query("BEGIN");
 
+      const oldExpenseAmount = await client.query(`SELECT amount FROM tbl_expenses WHERE expense_id = $1`, [expenseId]);
+
       // Step 1: Update Expense
       const expenseResult = await client.query(
         `UPDATE tbl_expenses
@@ -137,7 +139,10 @@ module.exports = {
       }
 
       await client.query("COMMIT");
-      return;
+      return {
+        oldAmount: oldExpenseAmount.rows[0].amount,
+        groupId,
+      };
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Error in editing expense:", error.message);
@@ -261,10 +266,47 @@ module.exports = {
 
       await client.query("COMMIT");
       console.log("Expense deleted successfully.");
-      return;
+      return {
+        groupId: group_id,
+      };
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Error in deleting expense:", error.message);
+      throw error;
+    }
+  },
+  logExpenseChange: async ({ groupId, expenseId, userId, actionType, oldAmount = null, newAmount = null }) => {
+    try {
+      // Insert into log table
+      await client.query(
+        `INSERT INTO tbl_expense_logs (group_id, expense_id, user_id, action_type, old_amount, new_amount)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [groupId, expenseId, userId, actionType, oldAmount, newAmount]
+      );
+    } catch (error) {
+      console.error("Error in fetching expenses:", error.message);
+      throw error;
+    }
+  },
+  getExpenseLogs: async (groupId) => {
+    try {
+      const logs = await client.query(
+        `SELECT 
+          u.name,
+          u.avatar,
+          el.action_type,
+          el.old_amount,
+          el.new_amount,
+          el.created_at 
+         FROM tbl_expense_logs el
+         JOIN tbl_users u ON el.user_id = u.user_id
+         WHERE el.group_id = $1 
+         ORDER BY el.created_at DESC`,
+        [groupId]
+      );
+      return logs.rows;
+    } catch (error) {
+      console.error("Error in fetching expenses:", error.message);
       throw error;
     }
   },

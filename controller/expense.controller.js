@@ -2,6 +2,7 @@ const expenseModel = require("../model/expense.model");
 const common = require("./common.controller");
 const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
+const { trackExpenseChange } = require("../helpers/expenseLog");
 
 module.exports = {
   addExpense: async (req, res) => {
@@ -15,7 +16,16 @@ module.exports = {
   },
   editExpense: async (req, res) => {
     try {
-      await expenseModel.editExpense({ ...req.body, expenseId: req.params.expense_id, paidBy: req.user.user_id });
+      const response = await expenseModel.editExpense({ ...req.body, expenseId: req.params.expense_id, paidBy: req.user.user_id });
+
+      await trackExpenseChange({
+        groupId: response.groupId,
+        expenseId: req.params.expense_id,
+        userId: req.user.user_id,
+        actionType: "EDIT",
+        oldAmount: response.oldAmount,
+        newAmount: req.body.amount,
+      });
 
       return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
     } catch (error) {
@@ -36,8 +46,15 @@ module.exports = {
   },
   deleteExpense: async (req, res) => {
     try {
-      await expenseModel.deleteExpense(req.params.expense_id);
-
+      const response = await expenseModel.deleteExpense(req.params.expense_id);
+      await trackExpenseChange({
+        groupId: response.groupId,
+        expenseId: req.params.expense_id,
+        userId: req.user.user_id,
+        actionType: "DELETE",
+        oldAmount: null,
+        newAmount: null,
+      });
       return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);

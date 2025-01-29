@@ -2,6 +2,7 @@ const groupModel = require("../model/group.model");
 const common = require("./common.controller");
 const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
+const { getExpenseChangeLog } = require("../helpers/expenseLog");
 
 module.exports = {
   createGroup: async (req, res) => {
@@ -45,6 +46,15 @@ module.exports = {
         groupId: req.params.group_id,
         userId: req.user.user_id,
       });
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, groupList);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  getGroupExpenseLogs: async (req, res) => {
+    try {
+      let groupList = await getExpenseChangeLog(req.params.group_id);
 
       return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, groupList);
     } catch (error) {

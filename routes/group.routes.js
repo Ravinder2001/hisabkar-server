@@ -11,5 +11,6 @@ router.post("/createGroup", authenticateJWT, validateBody(schemas.createGroup), 
 router.post("/joinGroup", authenticateJWT, validateBody(schemas.joinGroup), validateData.validateGroup, validateData.validateExistingGroup, GroupController.joinGroup);
 router.get("/", authenticateJWT, GroupController.getAllGroups);
 router.get("/single/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupDataById);
+router.get("/expenseLogs/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupExpenseLogs);
 
 module.exports = router;
