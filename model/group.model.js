@@ -99,10 +99,10 @@ module.exports = {
         LEFT JOIN tbl_group_types gt ON g.group_type_id = gt.group_type_id
         WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1)
       `;
-  
+
       // Execute the query with the provided userId
       const groupQuery = await client.query(query, [userId]);
-  
+
       // Process the result
       const groups = groupQuery.rows.map((group) => {
         const avatars = group.members_avatars || [];
@@ -113,13 +113,13 @@ module.exports = {
           members_avatars: undefined, // Removing the raw avatars array
         };
       });
-  
+
       return groups;
     } catch (error) {
       console.error("Error in fetching groups:", error.message);
       throw error;
     }
-  },  
+  },
   getGroupDataById: async (values) => {
     try {
       // SQL query to get all the required information
