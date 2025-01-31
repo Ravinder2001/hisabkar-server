@@ -80,7 +80,11 @@ module.exports = {
           gt.type_name AS group_type,
           g.total_amount,
           g.is_settled,
-          COUNT(gm.member_id) AS total_members_count,
+          (
+            SELECT COUNT(*) 
+            FROM tbl_group_members gm_count 
+            WHERE gm_count.group_id = g.group_id
+          ) AS total_members_count,
           CASE 
             WHEN g.admin_user = $1 THEN true
             ELSE false
@@ -93,31 +97,29 @@ module.exports = {
           ) AS members_avatars
         FROM tbl_groups g
         LEFT JOIN tbl_group_types gt ON g.group_type_id = gt.group_type_id
-        LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
-        WHERE gm.user_id = $1
-        GROUP BY g.group_id, gt.type_name
+        WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1)
       `;
-
+  
       // Execute the query with the provided userId
       const groupQuery = await client.query(query, [userId]);
-
-      // Map the result to include 'members' with avatars
+  
+      // Process the result
       const groups = groupQuery.rows.map((group) => {
+        const avatars = group.members_avatars || [];
         return {
           ...group,
-          members: group.members_avatars.map((avatar) => ({
-            avatar,
-          })),
+          members: avatars.slice(0, 5), // Only first 5 avatars
+          remaining_members: avatars.length > 5 ? avatars.length - 5 : undefined, // Remaining count
           members_avatars: undefined, // Removing the raw avatars array
         };
       });
-
+  
       return groups;
     } catch (error) {
       console.error("Error in fetching groups:", error.message);
       throw error;
     }
-  },
+  },  
   getGroupDataById: async (values) => {
     try {
       // SQL query to get all the required information

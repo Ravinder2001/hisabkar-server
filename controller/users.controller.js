@@ -2,14 +2,10 @@ const userModel = require("../model/users.model");
 const common = require("./common.controller");
 const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
-const { OAuth2Client } = require("google-auth-library");
-const config = require("../configuration/config");
 const generateOTP = require("../helpers/generateOTP");
 const sendEmail = require("../helpers/sendEmail");
 const emailContent = require("../utils/constant/emailContent");
 const generateAvatarImage = require("../helpers/generateAvatar");
-
-const client = new OAuth2Client(config.GOOGLE.GOOGLE_CLIENT_ID);
 
 module.exports = {
   sendOTP: async (req, res) => {
@@ -39,9 +35,19 @@ module.exports = {
   register: async (req, res) => {
     try {
       let avatarImage = generateAvatarImage();
-      console.log("🚀  avatarImage:", avatarImage);
       await userModel.register({ ...req.body, avatar: avatarImage });
-      return common.successResponse(res, Messages.USER_REGISTER_SUCCESS, HttpStatus.OK);
+      const user = await userModel.getUserDetailsByEmail(req.body.email);
+
+      if (!user) {
+        return res.status(401).json({ message: Messages.INVALID_CREDS, success: 0 });
+      }
+
+      const token = await common.generateUserToken(user);
+
+      sendEmail(user.email, emailContent.WelcomeMail({ name: req.body.name }));
+      return common.successResponse(res, Messages.USER_REGISTER_SUCCESS, HttpStatus.OK, {
+        token,
+      });
     } catch (error) {
       common.handleAsyncError(error, res);
     }
@@ -67,15 +73,23 @@ module.exports = {
   },
   googleLogin: async (req, res) => {
     try {
-      const id_token = req.body.token;
+      const access_token = req.body.token;
 
-      const ticket = await client.verifyIdToken({
-        idToken: id_token,
-        audience: process.env.GOOGLE_CLIENT_ID,
+      // Use the access_token to get user info from Google's UserInfo endpoint
+      const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
       });
-      const payload = ticket.getPayload();
-      const email = payload.email;
 
+      if (!response.ok) {
+        // If the response is not ok, return an error
+        return res.status(401).json({ message: "Invalid token", success: 0 });
+      }
+
+      const data = await response.json(); // Parse the response JSON
+      const { email } = data; // Extract the email from the response
       const user = await userModel.getUserDetailsByEmail(email);
 
       if (!user) {

@@ -75,7 +75,7 @@ const generateUserToken = (data) => {
       iat: Math.round(new Date().getTime() / 1000),
       // exp: Math.round(new Date().getTime() / 1000) + 24 * 60 * 60,
     },
-    config.jwt.secretKey,
+    config.JWT.SECRET_KEY,
     {
       expiresIn: "100d",
     }

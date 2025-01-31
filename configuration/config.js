@@ -11,9 +11,6 @@ const config = {
   JWT: {
     SECRET_KEY: process.env.SECRET,
   },
-  GOOGLE: {
-    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-  },
   NODEMAILER: {
     EMAIL: process.env.EMAIL,
     PASSWORD: process.env.PASSWORD,
