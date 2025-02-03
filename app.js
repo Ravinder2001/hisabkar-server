@@ -21,7 +21,7 @@ const app = express();
 const corsOptions = {
   origin: "*", // Allow requests from this org
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allow only GET and POST requests
-  optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200, // Some le gacy browsers (IE11, various SmartTVs) choke on 204
 };
 
 const limiter = rateLimit({

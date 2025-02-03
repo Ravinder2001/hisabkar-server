@@ -21,12 +21,12 @@ module.exports = {
   },
   joinGroup: async (req, res) => {
     try {
-      await groupModel.joinGroup({
-        ...req.body,
+      const response = await groupModel.joinGroup({
+        groupCode: req.params.group_code,
         userId: req.user.user_id,
       });
 
-      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response);
     } catch (error) {
       common.handleAsyncError(error, res);
     }
@@ -55,6 +55,15 @@ module.exports = {
   getGroupExpenseLogs: async (req, res) => {
     try {
       let groupList = await getExpenseChangeLog(req.params.group_id);
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, groupList);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  getGroupTypeList: async (req, res) => {
+    try {
+      let groupList = await groupModel.getGroupTypeList();
 
       return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, groupList);
     } catch (error) {

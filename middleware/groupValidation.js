@@ -5,12 +5,12 @@ const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
 
 module.exports = {
-  validateGroup: async (req, res, next) => {
-    const { groupId, code } = req.body;
+  validateGroupCode: async (req, res, next) => {
+    const groupCode = req.params.group_code;
     try {
-      const data = await groupModel.findGroupById(groupId);
-      if (!data || data.code != code) {
-        return commonController.errorResponse(res, Messages.INVALID_CREDS, HttpStatus.BAD_REQUEST);
+      const data = await groupModel.findGroupByCode(groupCode);
+      if (!data) {
+        return commonController.errorResponse(res, Messages.INVALID_GROUP_CODE, HttpStatus.BAD_REQUEST);
       }
       next();
     } catch (error) {
@@ -18,10 +18,10 @@ module.exports = {
     }
   },
   validateExistingGroup: async (req, res, next) => {
-    const { groupId } = req.body;
+    const groupCode = req.params.group_code;
     const userId = req.user.user_id;
     try {
-      const data = await groupModel.getAllGroupMemebers(groupId);
+      const data = await groupModel.getAllGroupMemebersByCode(groupCode);
       const isUserInGroup = data.some((member) => member.user_id === userId && member.is_active);
       if (isUserInGroup) {
         return commonController.errorResponse(res, Messages.ALREADY_MEMBER, HttpStatus.BAD_REQUEST);

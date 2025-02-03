@@ -60,4 +60,13 @@ module.exports = {
       common.handleAsyncError(error, res);
     }
   },
+  getExpenseTypeList: async (req, res) => {
+    try {
+      const response = await expenseModel.getExpenseTypeList();
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response, response.length);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
 };

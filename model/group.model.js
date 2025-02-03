@@ -4,6 +4,7 @@ const generateOTP = require("../helpers/generateOTP");
 module.exports = {
   createGroup: async (values) => {
     try {
+      await client.query("BEGIN");
       let code;
       let isUnique = false;
 
@@ -17,41 +18,55 @@ module.exports = {
       } while (!isUnique);
 
       // Insert the group with the unique code
-      await client.query(
+      const groupId = await client.query(
         `
         INSERT INTO tbl_groups(group_type_id, admin_user, code, group_name) 
         VALUES($1, $2, $3, $4)
+        RETURNING group_id
         `,
         [values.groupTypeId, values.userId, code, values.groupName]
       );
 
+      await client.query(
+        `
+        INSERT INTO tbl_group_members(group_id,user_id) VALUES($1,$2)`,
+        [groupId.rows[0].group_id, values.userId]
+      );
+      await client.query("COMMIT");
       return code;
     } catch (error) {
+      await client.query("ROLLBACK");
       console.error("Error in creating group:", error.message);
       throw error;
     }
   },
   joinGroup: async (values) => {
     try {
+      await client.query("BEGIN");
+      const groupIdQuery = await client.query(`SELECT * FROM tbl_groups WHERE code = $1`, [values.groupCode]);
       // Insert the group with the unique code
+      let GroupID = groupIdQuery.rows[0].group_id;
       await client.query(
         `
         INSERT INTO tbl_group_members(group_id, user_id) 
         VALUES($1, $2)
         `,
-        [values.groupId, values.userId]
+        [GroupID, values.userId]
       );
-
-      return;
+      await client.query("COMMIT");
+      return {
+        group_id: GroupID,
+      };
     } catch (error) {
+      await client.query("ROLLBACK");
       console.error("Error in creating group:", error.message);
       throw error;
     }
   },
-  findGroupById: async (grouoId) => {
+  findGroupByCode: async (groupCode) => {
     try {
       // Insert the group with the unique code
-      let groupQuery = await client.query(`SELECT * FROM tbl_groups WHERE group_id = $1`, [grouoId]);
+      let groupQuery = await client.query(`SELECT * FROM tbl_groups WHERE code = $1`, [groupCode]);
 
       return groupQuery.rows[0];
     } catch (error) {
@@ -59,10 +74,12 @@ module.exports = {
       throw error;
     }
   },
-  getAllGroupMemebers: async (groupId) => {
+  getAllGroupMemebersByCode: async (groupCode) => {
     try {
+      const GroupId = await client.query(`SELECT * FROM tbl_groups WHERE code = $1`, [groupCode]);
+
       // Insert the group with the unique code
-      let groupQuery = await client.query(`SELECT * FROM tbl_group_members WHERE group_id = $1`, [groupId]);
+      let groupQuery = await client.query(`SELECT * FROM tbl_group_members WHERE group_id = $1`, [GroupId.rows[0].group_id]);
 
       return groupQuery.rows;
     } catch (error) {
@@ -77,7 +94,7 @@ module.exports = {
         SELECT
           g.group_id,
           g.group_name,
-          gt.type_name AS group_type,
+          g.group_type_id,
           g.total_amount,
           g.is_settled,
           (
@@ -96,7 +113,6 @@ module.exports = {
             WHERE gm2.group_id = g.group_id
           ) AS members_avatars
         FROM tbl_groups g
-        LEFT JOIN tbl_group_types gt ON g.group_type_id = gt.group_type_id
         WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1)
       `;
 
@@ -122,52 +138,73 @@ module.exports = {
   },
   getGroupDataById: async (values) => {
     try {
-      // SQL query to get all the required information
       const query = `
         SELECT
-          g.group_id,
           g.group_name,
-          gt.type_name AS group_type,
+          g.group_type_id,
           g.total_amount,
           g.is_settled,
-          COUNT(gm.member_id) AS total_members_count,
-          COUNT(e.expense_id) AS total_expenses_count,
+          COUNT(DISTINCT gm.member_id) AS total_members_count,
+          COUNT(DISTINCT e.expense_id) AS total_expenses_count,
           CASE 
             WHEN g.admin_user = $2 THEN true
             ELSE false
           END AS is_you_admin,
           ARRAY(
-            SELECT JSON_BUILD_OBJECT('name', u.name, 'avatar', u.avatar)
+            SELECT JSON_BUILD_OBJECT(
+              'id', u.user_id, 
+              'name', u.name, 
+              'avatar', u.avatar, 
+              'total_spent', COALESCE(SUM(e.amount), 0)
+            )
             FROM tbl_users u
             JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
+            LEFT JOIN tbl_expenses e ON e.paid_by = u.user_id AND e.group_id = g.group_id
             WHERE gm2.group_id = g.group_id
+            GROUP BY u.user_id
           ) AS members
         FROM tbl_groups g
-        LEFT JOIN tbl_group_types gt ON g.group_type_id = gt.group_type_id
         LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
         LEFT JOIN tbl_expenses e ON e.group_id = g.group_id
         WHERE g.group_id = $1
-        GROUP BY g.group_id, gt.type_name
+        GROUP BY g.group_id
       `;
 
-      // Execute the query with the provided groupId
       const groupQuery = await client.query(query, [values.groupId, values.userId]);
 
       if (groupQuery.rows.length === 0) {
         throw new Error("Group not found");
       }
 
-      // Structure the result
       const groupData = groupQuery.rows[0];
-      const result = {
+      return {
         ...groupData,
+        total_amount: parseFloat(groupData.total_amount), // Convert to number
         members: groupData.members.map((member) => ({
-          name: member.name,
-          avatar: member.avatar,
+          ...member,
+          total_spent: parseFloat(member.total_spent), // Convert total_spent to number
         })),
       };
+    } catch (error) {
+      console.error("Error in fetching group data:", error.message);
+      throw error;
+    }
+  },
+  getGroupTypeList: async () => {
+    try {
+      // SQL query to get all the required information
+      const query = `
+        SELECT
+          group_type_id as id,
+          type_name as name,
+          icon
+        FROM tbl_group_types
+      `;
 
-      return result;
+      // Execute the query with the provided groupId
+      const groupQuery = await client.query(query);
+
+      return groupQuery.rows;
     } catch (error) {
       console.error("Error in fetching group data:", error.message);
       throw error;

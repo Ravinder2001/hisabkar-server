@@ -8,9 +8,9 @@ const validateData = require("../middleware/groupValidation");
 const router = express.Router();
 
 router.post("/createGroup", authenticateJWT, validateBody(schemas.createGroup), GroupController.createGroup);
-router.post("/joinGroup", authenticateJWT, validateBody(schemas.joinGroup), validateData.validateGroup, validateData.validateExistingGroup, GroupController.joinGroup);
+router.get("/joinGroup/:group_code", authenticateJWT, validateData.validateGroupCode, validateData.validateExistingGroup, GroupController.joinGroup);
 router.get("/", authenticateJWT, GroupController.getAllGroups);
 router.get("/single/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupDataById);
 router.get("/expenseLogs/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupExpenseLogs);
-
+router.get("/groupTypeList", authenticateJWT, GroupController.getGroupTypeList);
 module.exports = router;

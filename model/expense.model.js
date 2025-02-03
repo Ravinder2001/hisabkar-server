@@ -51,6 +51,13 @@ module.exports = {
         }
       }
 
+      await client.query(
+        `UPDATE tbl_groups
+        SET total_amount = total_amount + $2
+        WHERE group_id = $1`,
+        [groupId, amount]
+      );
+
       await client.query("COMMIT");
       return;
     } catch (error) {
@@ -159,13 +166,12 @@ module.exports = {
           e.expense_type_id,
           e.description,
           e.amount,
-          u.name AS paid_by_name,
-          u.avatar AS paid_by_avatar,
+          e.paid_by,
+          e.created_at,
           COUNT(em.user_id) AS members_count,
           JSON_AGG(
             JSON_BUILD_OBJECT(
-              'name', um.name,
-              'avatar', um.avatar,
+              'id', em.user_id,  
               'amount', em.amount
             )
           ) AS members,
@@ -177,22 +183,20 @@ module.exports = {
         FROM 
           tbl_expenses e
         INNER JOIN 
-          tbl_users u ON e.paid_by = u.user_id
-        INNER JOIN 
           tbl_expense_members em ON e.expense_id = em.expense_id
-        INNER JOIN 
-          tbl_users um ON em.user_id = um.user_id
         WHERE 
           e.group_id = $1 AND e.is_active = TRUE
         GROUP BY 
-          e.expense_id, u.name, u.avatar
+          e.expense_id, e.paid_by
         ORDER BY 
           e.created_at DESC
         `,
         [values.groupId, values.userId]
       );
 
-      return expenseQuery.rows;
+      const expenseList = expenseQuery.rows;
+
+      return expenseList;
     } catch (error) {
       console.error("Error in fetching expenses:", error.message);
       throw error;
@@ -303,6 +307,22 @@ module.exports = {
          WHERE el.group_id = $1 
          ORDER BY el.created_at DESC`,
         [groupId]
+      );
+      return logs.rows;
+    } catch (error) {
+      console.error("Error in fetching expenses:", error.message);
+      throw error;
+    }
+  },
+  getExpenseTypeList: async () => {
+    try {
+      const logs = await client.query(
+        `SELECT
+         expense_type_id as id,
+         type_name as name,
+         icon
+         FROM tbl_expense_types
+        `
       );
       return logs.rows;
     } catch (error) {

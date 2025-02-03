@@ -30,6 +30,7 @@ let Messages = {
   ACCESS_DENIED: "Access denied. You do not have the necessary permissions.",
   PASSWORD_RESET: "Password reset successful.",
   INVALID_CREDS: "Invalid credentials provided.",
+  INVALID_GROUP_CODE: "Invalid Group Code provided.",
   INVALID_USER_ID: "Invalid user ID.",
   WRONG_PASSWORD: "Incorrect password. Please try again.",
   OTP_SENT: "OTP has been sent to your email address.",
