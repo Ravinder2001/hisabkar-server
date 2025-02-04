@@ -26,7 +26,13 @@ module.exports = {
   TIME: {
     expiry_time: 10, //Minutes
   },
-
+  LENGTH_VALIDATIONS: {
+    NAME: 20,
+    ID: 9999,
+    DES: 100,
+    AMOUNT: 999999,
+    EMAIL: 50,
+  },
   SOCKET_EVENTS: {},
   VARIABLES: {
     REGEX: "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])",

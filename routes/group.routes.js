@@ -13,4 +13,6 @@ router.get("/", authenticateJWT, GroupController.getAllGroups);
 router.get("/single/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupDataById);
 router.get("/expenseLogs/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupExpenseLogs);
 router.get("/groupTypeList", authenticateJWT, GroupController.getGroupTypeList);
+router.get("/", authenticateJWT, GroupController.getGroupTypeList);
+
 module.exports = router;
