@@ -70,4 +70,16 @@ module.exports = {
       common.handleAsyncError(error, res);
     }
   },
+  getMyPairs: async (req, res) => {
+    try {
+      let groupList = await groupModel.getMyPairs({
+        group_id: req.params.group_id,
+        user_id: req.user.user_id,
+      });
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, groupList);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
 };

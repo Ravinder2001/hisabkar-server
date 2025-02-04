@@ -210,4 +210,37 @@ module.exports = {
       throw error;
     }
   },
+  getMyPairs: async ({ group_id, user_id }) => {
+    try {
+      // Query to get users to whom the current user needs to send money
+      const sendQuery = await client.query(
+        `
+        SELECT u.name AS user_name, gp.amount
+        FROM tbl_group_pairs gp
+        JOIN tbl_users u ON gp.receiver_user = u.user_id
+        WHERE gp.group_id = $1 AND gp.sender_user = $2 AND gp.amount > 0
+      `,
+        [group_id, user_id]
+      );
+
+      // Query to get users from whom the current user will receive money
+      const receiveQuery = await client.query(
+        `
+        SELECT u.name AS user_name, gp.amount
+        FROM tbl_group_pairs gp
+        JOIN tbl_users u ON gp.sender_user = u.user_id
+        WHERE gp.group_id = $1 AND gp.receiver_user = $2 AND gp.amount > 0
+      `,
+        [group_id, user_id]
+      );
+
+      return {
+        send: sendQuery.rows,
+        receive: receiveQuery.rows,
+      };
+    } catch (error) {
+      console.error("Error in fetching group data:", error.message);
+      throw error;
+    }
+  },
 };
