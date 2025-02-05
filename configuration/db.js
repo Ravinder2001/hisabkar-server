@@ -6,29 +6,56 @@ let client;
 
 async function initializeDatabase() {
   try {
-    const { USER, HOST, DATABASE, PASSWORD, PORT } = config.DB;
-    client = new Client({
-      user: USER,
-      host: HOST,
-      database: DATABASE,
-      password: PASSWORD,
-      port: PORT,
-    });
-
-    // Connection events
-    client.on("error", (err) => {
-      // Handle the error
-      console.error("PostgreSQL client error:", err);
-    });
-    client
-      .connect()
-      .then(() => {
-        console.log("Connected to database");
-      })
-      .catch((err) => {
-        // Connection error
-        console.error("PostgreSQL DB connection error:", err);
+    if (process.env.NODE_ENV == "local") {
+      const { USER, HOST, DATABASE, PASSWORD, PORT } = config.DB;
+      client = new Client({
+        user: USER,
+        host: HOST,
+        database: DATABASE,
+        password: PASSWORD,
+        port: PORT,
       });
+
+      // Connection events
+      client.on("error", (err) => {
+        // Handle the error
+        console.error("PostgreSQL client error:", err);
+      });
+      client
+        .connect()
+        .then(() => {
+          console.log("Connected to database");
+        })
+        .catch((err) => {
+          // Connection error
+          console.error("PostgreSQL DB connection error:", err);
+        });
+    } else {
+      const { USER, HOST, DATABASE, PASSWORD, PORT } = config.DB;
+      client = new Client({
+        user: USER,
+        host: HOST,
+        database: DATABASE,
+        password: PASSWORD,
+        port: PORT,
+        ssl: true,
+      });
+
+      // Connection events
+      client.on("error", (err) => {
+        // Handle the error
+        console.error("PostgreSQL client error:", err);
+      });
+      client
+        .connect()
+        .then(() => {
+          console.log("Connected to database");
+        })
+        .catch((err) => {
+          // Connection error
+          console.error("PostgreSQL DB connection error:", err);
+        });
+    }
   } catch (error) {
     console.error("Error on database connection", error.message);
   }
