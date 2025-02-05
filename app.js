@@ -58,6 +58,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use((req, res, next) => {
+  console.log(req.id, "IP address");
   const userId = req.headers["x-user-id"]; // Extract custom header
   if (userId) {
     req.userId = userId; // Attach it to the request object
