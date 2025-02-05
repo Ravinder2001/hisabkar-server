@@ -17,6 +17,19 @@ require("./configuration/db");
 const port = config.PORT;
 
 const app = express();
+app.set("trust proxy", true);
+
+app.use((req, res, next) => {
+  console.log("req.ip:", req.ip);
+
+  console.log("req.ips:", req.ips);
+
+  console.log("X-Forwarded-For:", req.headers["x-forwarded-for"]);
+
+  console.log("remoteAddress:", req.connection.remoteAddress);
+
+  next();
+});
 
 const corsOptions = {
   origin: "*", // Allow requests from this org
@@ -57,6 +70,7 @@ app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-cache, no-store");
   next();
 });
+
 app.use((req, res, next) => {
   console.log(req.id, "IP address");
   const userId = req.headers["x-user-id"]; // Extract custom header
