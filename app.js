@@ -83,6 +83,7 @@ let subscriptions = []; // Store subscriptions
 app.post("/subscribe", (req, res) => {
   const subscription = req.body;
   subscriptions.push(subscription);
+  console.log("🚀  subscriptions:", subscriptions);
   res.status(201).json({});
 });
 
@@ -93,6 +94,7 @@ app.post("/sendNotification", async (req, res) => {
     body: "You have a new notification.",
   });
 
+  console.log("🚀  subscriptions for each", subscriptions);
   subscriptions.forEach((sub) => {
     webpush.sendNotification(sub, payload).catch((err) => console.error(err));
   });
