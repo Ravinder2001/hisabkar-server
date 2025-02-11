@@ -70,6 +70,36 @@ app.use(morgan(":method :url :status - userId: :user - :ist-date"));
 
 app.use("/", mainRouter);
 
+const webpush = require("web-push");
+// Replace with your generated VAPID keys
+const publicVapidKey = "BLQ5bMG3fW57qAkWCn4oRCLQCFky8Lbx4ZsTLZfXgpXzfTnnc9mYgVM2huTesGq_9FFDCMGu7KUppEnUO7VcqT0";
+const privateVapidKey = "ktZgvqA37BPPYpQRqJB7YXaivmXzi4r_ZpGmeU4tWEk";
+
+webpush.setVapidDetails("mailto:test@example.com", publicVapidKey, privateVapidKey);
+
+let subscriptions = []; // Store subscriptions
+
+// Endpoint to subscribe a user
+app.post("/subscribe", (req, res) => {
+  const subscription = req.body;
+  subscriptions.push(subscription);
+  res.status(201).json({});
+});
+
+// Send a push notification to all subscribers
+app.post("/sendNotification", async (req, res) => {
+  const payload = JSON.stringify({
+    title: "New Message!",
+    body: "You have a new notification.",
+  });
+
+  subscriptions.forEach((sub) => {
+    webpush.sendNotification(sub, payload).catch((err) => console.error(err));
+  });
+
+  res.status(200).json({ message: "Notification sent" });
+});
+
 app.listen(port, () => {
   process.stdout.write(`Server is running on port ${port}\n`);
 });
