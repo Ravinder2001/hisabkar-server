@@ -7,9 +7,9 @@ const { trackExpenseChange } = require("../helpers/expenseLog");
 module.exports = {
   addExpense: async (req, res) => {
     try {
-      await expenseModel.addExpense({ ...req.body, groupId: req.params.group_id, paidBy: req.user.user_id });
+      const response = await expenseModel.addExpense({ ...req.body, groupId: req.params.group_id, paidBy: req.user.user_id });
 
-      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response);
     } catch (error) {
       common.handleAsyncError(error, res);
     }
@@ -27,7 +27,7 @@ module.exports = {
         newAmount: req.body.amount,
       });
 
-      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response.expenseData);
     } catch (error) {
       common.handleAsyncError(error, res);
     }

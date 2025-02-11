@@ -1,16 +1,64 @@
 const client = require("../configuration/db");
 
+const getExpenseById = async (values) => {
+  try {
+    const expenseQuery = await client.query(
+      `
+      SELECT 
+        e.expense_id,
+        e.expense_name,
+        e.expense_type_id,
+        e.description,
+        e.split_type,
+        e.amount,
+        e.paid_by,
+        e.created_at,
+        COUNT(em.user_id) AS members_count,
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'id', em.user_id,  
+            'amount', em.amount
+          )
+        ) AS members,
+        CASE 
+        WHEN e.paid_by = $2 THEN TRUE 
+        ELSE FALSE 
+      END AS is_own_expense
+
+      FROM 
+        tbl_expenses e
+      INNER JOIN 
+        tbl_expense_members em ON e.expense_id = em.expense_id
+      WHERE 
+        e.group_id = $1 AND e.is_active = TRUE AND e.expense_id = $3
+      GROUP BY 
+        e.expense_id, e.paid_by
+      ORDER BY 
+        e.created_at DESC
+      `,
+      [values.groupId, values.userId, values.expenseId]
+    );
+
+    const expenseList = expenseQuery.rows;
+
+    return expenseList;
+  } catch (error) {
+    console.error("Error in fetching expenses:", error.message);
+    throw error;
+  }
+};
+
 module.exports = {
   addExpense: async (values) => {
-    const { expenseName, expenseTypeId, description, amount, groupId, paidBy, members } = values;
+    const { expenseName, expenseTypeId, description, amount, groupId, paidBy, members, splitType } = values;
     try {
       await client.query("BEGIN");
 
       // Step 1: Add Expense
       const expenseResult = await client.query(
-        `INSERT INTO tbl_expenses (group_id,expense_type_id, expense_name, amount, paid_by,description) 
-         VALUES ($1, $2, $3, $4, $5,$6) RETURNING expense_id`,
-        [groupId, expenseTypeId, expenseName, amount, paidBy, description]
+        `INSERT INTO tbl_expenses (group_id,expense_type_id, expense_name, amount, paid_by,description,split_type) 
+         VALUES ($1, $2, $3, $4, $5,$6,$7) RETURNING expense_id`,
+        [groupId, expenseTypeId, expenseName, amount, paidBy, description, splitType]
       );
       const expense_id = expenseResult.rows[0].expense_id;
 
@@ -57,9 +105,9 @@ module.exports = {
         WHERE group_id = $1`,
         [groupId, amount]
       );
-
+      const expenseData = await getExpenseById({ groupId, userId: paidBy, expenseId: expense_id });
       await client.query("COMMIT");
-      return;
+      return expenseData;
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Error in creating group:", error.message);
@@ -67,7 +115,7 @@ module.exports = {
     }
   },
   editExpense: async (values) => {
-    const { expenseId, expenseName, expenseTypeId, amount, paidBy, members, description } = values;
+    const { expenseId, expenseName, expenseTypeId, amount, paidBy, members, description, splitType } = values;
     try {
       await client.query("BEGIN");
 
@@ -76,9 +124,9 @@ module.exports = {
       // Step 1: Update Expense
       const expenseResult = await client.query(
         `UPDATE tbl_expenses
-         SET expense_name = $1, expense_type_id = $2, amount = $3, paid_by = $4, description = $5
-         WHERE expense_id = $6 RETURNING group_id`,
-        [expenseName, expenseTypeId, amount, paidBy, description, expenseId]
+         SET expense_name = $1, expense_type_id = $2, amount = $3, paid_by = $4, description = $5, split_type = $6
+         WHERE expense_id = $7 RETURNING group_id`,
+        [expenseName, expenseTypeId, amount, paidBy, description, splitType, expenseId]
       );
 
       const groupId = expenseResult.rows[0].group_id;
@@ -108,7 +156,6 @@ module.exports = {
         const receiver = paidBy;
         const pairAmount = member.amount;
 
-        // Only proceed if sender and receiver are different
         if (sender !== receiver) {
           // Remove old balances from tbl_group_pairs first
           await client.query(
@@ -134,7 +181,6 @@ module.exports = {
             [groupId, sender, receiver, pairAmount]
           );
 
-          // Update the reverse pair as well
           await client.query(
             `INSERT INTO tbl_group_pairs (group_id, sender_user, receiver_user, amount) 
              VALUES ($1, $2, $3, $4)
@@ -145,10 +191,20 @@ module.exports = {
         }
       }
 
+      // **Step 5: Update Group's Total Amount**
+      await client.query(
+        `UPDATE tbl_groups 
+         SET total_amount = (SELECT COALESCE(SUM(amount), 0) FROM tbl_expenses WHERE group_id = $1) 
+         WHERE group_id = $1`,
+        [groupId]
+      );
+      const expenseData = await getExpenseById({ groupId, userId: paidBy, expenseId });
       await client.query("COMMIT");
+
       return {
         oldAmount: oldExpenseAmount.rows[0].amount,
         groupId,
+        expenseData,
       };
     } catch (error) {
       await client.query("ROLLBACK");
@@ -165,6 +221,7 @@ module.exports = {
           e.expense_name,
           e.expense_type_id,
           e.description,
+          e.split_type,
           e.amount,
           e.paid_by,
           e.created_at,

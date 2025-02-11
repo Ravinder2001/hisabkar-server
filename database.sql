@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS tbl_expenses (
   description TEXT,
   amount NUMERIC(10, 2) NOT NULL,
   paid_by INT NOT NULL REFERENCES tbl_users(user_id),
+  split_type VARCHAR(20) NOT NULL CHECK (split_type IN ('EQUAL', 'CUSTOM', 'PERCENTAGE')),
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
