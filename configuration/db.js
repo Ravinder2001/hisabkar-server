@@ -1,6 +1,5 @@
 const { Client } = require("pg");
 const config = require("../configuration/config");
-console.log("🚀  config:", config);
 
 const client = new Client({
   user: config.DB.USER,
