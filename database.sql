@@ -85,16 +85,17 @@ CREATE TABLE IF NOT EXISTS tbl_group_pairs (
   UNIQUE (group_id, sender_user, receiver_user) -- Unique constraint added here
 );
 
-CREATE TABLE IF NOT EXISTS tbl_expense_logs (
+CREATE TABLE IF NOT EXISTS tbl_group_logs (
   log_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   group_id INT NOT NULL REFERENCES tbl_groups(group_id),
-  expense_id INT NOT NULL,
+  expense_id INT,  -- Nullable for non-expense actions
   user_id INT NOT NULL REFERENCES tbl_users(user_id),
-  action_type VARCHAR(10) NOT NULL CHECK (action_type IN ('EDIT', 'DELETE')),
-  old_amount DECIMAL(10,2),
-  new_amount DECIMAL(10,2),
+  action_type VARCHAR(15) NOT NULL CHECK (action_type IN ('EDIT', 'DELETE', 'SETTLED', 'UNSETTLED' ,'JOINED', 'LEFT')),
+  old_amount DECIMAL(10,2), -- Nullable for non-expense actions
+  new_amount DECIMAL(10,2), -- Nullable for non-expense actions
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE IF NOT EXISTS tbl_sw_subscriptions (
   subscription_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

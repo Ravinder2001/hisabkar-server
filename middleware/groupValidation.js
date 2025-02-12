@@ -74,4 +74,19 @@ module.exports = {
       return commonController.handleAsyncError(error, res);
     }
   },
+  validateGroupOwnerShip: async (req, res, next) => {
+    const { group_id } = req.params;
+    try {
+      const groupData = await groupModel.getGroupDataById({
+        groupId: group_id,
+        userId: req.user.user_id,
+      });
+      if (!groupData.is_you_admin) {
+        return commonController.errorResponse(res, Messages.FORBIDDEN, HttpStatus.BAD_REQUEST);
+      }
+      next();
+    } catch (error) {
+      return commonController.handleAsyncError(error, res);
+    }
+  },
 };

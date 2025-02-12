@@ -243,4 +243,22 @@ module.exports = {
       throw error;
     }
   },
+  toggleGroupSettlement: async ({ group_id, user_id }) => {
+    try {
+      const result = await client.query(
+        `
+        UPDATE tbl_groups 
+        SET is_settled = NOT is_settled 
+        WHERE group_id = $1 AND admin_user = $2
+        RETURNING is_settled;
+        `,
+        [group_id, user_id]
+      );
+
+      return result.rows[0]; // Returning the updated value
+    } catch (error) {
+      console.error("Error in toggling group settlement:", error.message);
+      throw error;
+    }
+  },
 };

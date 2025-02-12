@@ -354,7 +354,7 @@ module.exports = {
     try {
       // Insert into log table
       await client.query(
-        `INSERT INTO tbl_expense_logs (group_id, expense_id, user_id, action_type, old_amount, new_amount)
+        `INSERT INTO tbl_group_logs (group_id, expense_id, user_id, action_type, old_amount, new_amount)
          VALUES ($1, $2, $3, $4, $5, $6)`,
         [groupId, expenseId, userId, actionType, oldAmount, newAmount]
       );
@@ -373,7 +373,7 @@ module.exports = {
           el.old_amount,
           el.new_amount,
           el.created_at 
-         FROM tbl_expense_logs el
+         FROM tbl_group_logs el
          JOIN tbl_users u ON el.user_id = u.user_id
          WHERE el.group_id = $1 
          ORDER BY el.created_at DESC`,

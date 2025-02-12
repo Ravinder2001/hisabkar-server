@@ -14,5 +14,6 @@ router.get("/single/:group_id", authenticateJWT, validateData.validateGroupId, G
 router.get("/expenseLogs/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getGroupExpenseLogs);
 router.get("/groupTypeList", authenticateJWT, GroupController.getGroupTypeList);
 router.get("/myPairs/:group_id", authenticateJWT, validateData.validateGroupId, GroupController.getMyPairs);
+router.get("/toggleGroupSettlement/:group_id", authenticateJWT, validateData.validateGroupId, validateData.validateGroupOwnerShip, GroupController.toggleGroupSettlement);
 
 module.exports = router;

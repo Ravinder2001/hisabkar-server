@@ -5,7 +5,7 @@ const Messages = {
   SERVER_ERROR: "Internal server error. Please try again later.",
   NOT_FOUND: "Resource not found.",
   UNAUTHORIZED: "Unauthorized access.",
-  FORBIDDEN: "You do not have permission to access this resource.",
+  FORBIDDEN: "You do not have permission.",
   BAD_REQUEST: "Invalid request data.",
   VALIDATION_ERROR: "Request data validation failed.",
   INVALID_FILE_TYPE: "Invalid file type. Please upload a valid file.",
@@ -84,6 +84,7 @@ const Messages = {
   // Group
   ALREADY_MEMBER: "You have already joined the group.",
   GROUP_SETTLED: "This group has been settled. You cannot Add | Edit | Delete expense.",
+  GROUP_SETTLEMNT_TOGGLE: (status) => `Group has been ${status ? "Settled" : "Un-Settled"} succesfully`,
 };
 
 module.exports = Messages;
