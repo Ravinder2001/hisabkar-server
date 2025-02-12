@@ -9,9 +9,26 @@ const validateExpenseData = require("../middleware/expenseValidation");
 const router = express.Router();
 
 router.get("/expenseTypeList", authenticateJWT, ExpenseController.getExpenseTypeList);
-router.post("/addExpense/:group_id", authenticateJWT, validateBody(schemas.addExpense), validateData.validateGroupId, validateExpenseData.validateExpenseAmount, ExpenseController.addExpense);
-router.put("/editExpense/:expense_id", authenticateJWT, validateBody(schemas.addExpense), validateData.validateExpenseId, validateExpenseData.validateExpenseAmount, ExpenseController.editExpense);
+router.post(
+  "/addExpense/:group_id",
+  authenticateJWT,
+  validateBody(schemas.addExpense),
+  validateData.validateGroupId,
+  validateData.validateGroupSettlement,
+  validateExpenseData.validateExpenseAmount,
+  ExpenseController.addExpense
+);
+router.put(
+  "/editExpense/:group_id/:expense_id",
+  authenticateJWT,
+  validateBody(schemas.addExpense),
+  validateData.validateGroupId,
+  validateData.validateExpenseId,
+  validateData.validateGroupSettlement,
+  validateExpenseData.validateExpenseAmount,
+  ExpenseController.editExpense
+);
 router.get("/getAllExpenses/:group_id", authenticateJWT, validateData.validateGroupId, ExpenseController.getAllExpenses);
-router.delete("/:expense_id", authenticateJWT, validateData.validateExpenseId, ExpenseController.deleteExpense);
+router.delete("/:group_id/:expense_id", authenticateJWT, validateData.validateGroupId, validateData.validateExpenseId, validateData.validateGroupSettlement, ExpenseController.deleteExpense);
 
 module.exports = router;

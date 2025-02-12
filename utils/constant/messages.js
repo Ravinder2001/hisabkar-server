@@ -1,4 +1,4 @@
-let Messages = {
+const Messages = {
   // General
   SUCCESS: "Request completed successfully.",
   FAILED: "Request failed. Please try again.",
@@ -15,10 +15,10 @@ let Messages = {
   DATA_UPDATED: "Data updated successfully.",
   DATA_DELETED: "Data deleted successfully.",
   INVALID_TYPE: "Invalid type.",
-  PARAMETERS_REQ: "Request parameters are required",
-  INVALID_PAYLOAD: "Not a valid payload",
-  ALREADY_EXISTS: (field, fieldName) => `${fieldName}: ${field} is already exists.`,
-  WRONG_OTP: "OTP is incorrect",
+  PARAMETERS_REQ: "Request parameters are required.",
+  INVALID_PAYLOAD: "Not a valid payload.",
+  ALREADY_EXISTS: (field, fieldName) => `${fieldName}: ${field} already exists.`,
+  WRONG_OTP: "OTP is incorrect.",
   INVALID_AMOUNT: (totalAmount, amount) => `Total of members' amounts (${totalAmount}) must equal main amount (${amount}).`,
 
   // Authentication & Authorization
@@ -81,8 +81,9 @@ let Messages = {
   MSG_DELETED: "This message was deleted.",
   CHANNEL_CREATED: "Channel created successfully.",
 
-  //group
-  ALREADY_MEMBER: "You have already joined the group",
+  // Group
+  ALREADY_MEMBER: "You have already joined the group.",
+  GROUP_SETTLED: "This group has been settled. You cannot Add | Edit | Delete expense.",
 };
 
 module.exports = Messages;
