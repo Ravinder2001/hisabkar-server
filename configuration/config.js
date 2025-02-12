@@ -11,6 +11,10 @@ const config = {
   JWT: {
     SECRET_KEY: process.env.SECRET,
   },
+  CRYPTO: {
+    SECRET_KEY: process.env.CRYPTO_SECRET_KEY ?? "",
+    IV_KEY: process.env.CRYPTO_IV ?? "",
+  },
   NODEMAILER: {
     EMAIL: process.env.EMAIL,
     PASSWORD: process.env.PASSWORD,

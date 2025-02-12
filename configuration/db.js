@@ -1,70 +1,30 @@
 const { Client } = require("pg");
-
 const config = require("../configuration/config");
 
-let client;
+const client = new Client({
+  user: config.DB.USER,
+  host: config.DB.HOST,
+  database: config.DB.DATABASE,
+  password: config.DB.PASSWORD,
+  port: config.DB.PORT,
+  ssl: false,
+});
+
+client.on("error", (err) => {
+  console.error("PostgreSQL client error:", err);
+});
 
 async function initializeDatabase() {
   try {
-    if (process.env.NODE_ENV == "local") {
-      const { USER, HOST, DATABASE, PASSWORD, PORT } = config.DB;
-      client = new Client({
-        user: USER,
-        host: HOST,
-        database: DATABASE,
-        password: PASSWORD,
-        port: PORT,
-      });
-
-      // Connection events
-      client.on("error", (err) => {
-        // Handle the error
-        console.error("PostgreSQL client error:", err);
-      });
-      client
-        .connect()
-        .then(() => {
-          console.log("Connected to database");
-        })
-        .catch((err) => {
-          // Connection error
-          console.error("PostgreSQL DB connection error:", err);
-        });
-    } else {
-      const { USER, HOST, DATABASE, PASSWORD, PORT } = config.DB;
-      client = new Client({
-        user: USER,
-        host: HOST,
-        database: DATABASE,
-        password: PASSWORD,
-        port: PORT,
-        ssl: true,
-      });
-
-      // Connection events
-      client.on("error", (err) => {
-        // Handle the error
-        console.error("PostgreSQL client error:", err);
-      });
-      client
-        .connect()
-        .then(() => {
-          console.log("Connected to database");
-        })
-        .catch((err) => {
-          // Connection error
-          console.error("PostgreSQL DB connection error:", err);
-        });
-    }
-  } catch (error) {
-    console.error("Error on database connection", error.message);
+    await client.connect();
+    console.log("Connected to database");
+  } catch (err) {
+    console.error("PostgreSQL DB connection error:", err);
   }
 }
 
-// Call the asynchronous function to initialize the database
-module.exports = initializeDatabase();
+initializeDatabase();
 
-// module.exports = client;
 module.exports = {
   query: (text, params) => client.query(text, params),
 };

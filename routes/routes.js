@@ -7,6 +7,9 @@ const groupRouter = require("./group.routes");
 const { authLimiter, commonLimiter } = require("../helpers/rateLimitorHelper");
 
 router.use("/user", authLimiter, usersRouter);
-router.use("/group", commonLimiter, groupRouter);
+router.use("/group", commonLimiter, groupRouter, (req, res) => {
+  console.log("🚀  res:", res);
+  console.log("🚀  req:", req);
+});
 router.use("/expense", commonLimiter, expenseRouter);
 module.exports = router;

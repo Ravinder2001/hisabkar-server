@@ -11,6 +11,7 @@ const helmet = require("helmet");
 const mainRouter = require("./routes/routes");
 const config = require("./configuration/config");
 const Messages = require("./utils/constant/messages");
+const { encryptData } = require("./utils/encryption");
 
 require("./jobs/cronJob");
 require("./configuration/db");
@@ -37,6 +38,24 @@ morgan.token("user", (req) => {
 app.use(cors(corsOptions));
 app.disable("x-powered-by"); // Disable the X-Powered-By header
 app.use(helmet());
+// app.use(encryptResponseMiddleware);
+app.use((req, res, next) => {
+  const originalSend = res.json; // Store original res.json
+
+  res.json = function (data) {
+    if (process.env.NODE_ENV === "prod") {
+      const encryptedData = encryptData(data.data);
+      originalSend.call(this, {
+        ...data,
+        data: encryptedData,
+      });
+    } else {
+      originalSend.call(this, data);
+    }
+  };
+
+  next();
+});
 
 app.use(
   helmet.contentSecurityPolicy({
