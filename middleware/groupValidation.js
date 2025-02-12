@@ -34,7 +34,7 @@ module.exports = {
   validateGroupId: async (req, res, next) => {
     const { group_id } = req.params;
     try {
-      const status = await dbValidation(group_id, "tbl_groups", "group_id");
+      const status = await dbValidation(group_id, "tbl_groups", "group_id", "is_active = TRUE");
       if (status === HttpStatus.BAD_REQUEST) {
         return commonController.errorResponse(res, "Not a valid Group id", HttpStatus.BAD_REQUEST);
       } else if (status === HttpStatus.NOT_FOUND) {

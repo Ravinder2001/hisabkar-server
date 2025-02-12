@@ -1,5 +1,6 @@
 const client = require("../configuration/db");
 const generateOTP = require("../helpers/generateOTP");
+const Messages = require("../utils/constant/messages");
 
 module.exports = {
   createGroup: async (values) => {
@@ -63,10 +64,31 @@ module.exports = {
       throw error;
     }
   },
+  leaveGroup: async (values) => {
+    try {
+      const groupData = await client.query(`SELECT admin_user FROM tbl_groups WHERE group_id = $1`, [values.groupId]);
+
+      if (groupData.rows[0].admin_user == values.userId) {
+        throw new Error(Messages.ADMIN_NOT_LEFT);
+      }
+
+      await client.query(
+        `
+        DELETE FROM tbl_group_members WHERE group_id = $1 AND user_id = $2
+        `,
+        [values.groupId, values.userId]
+      );
+      return;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.error("Error in creating group:", error.message);
+      throw error;
+    }
+  },
   findGroupByCode: async (groupCode) => {
     try {
       // Insert the group with the unique code
-      let groupQuery = await client.query(`SELECT * FROM tbl_groups WHERE code = $1`, [groupCode]);
+      let groupQuery = await client.query(`SELECT * FROM tbl_groups WHERE code = $1 AND is_active = TRUE`, [groupCode]);
 
       return groupQuery.rows[0];
     } catch (error) {
@@ -113,7 +135,7 @@ module.exports = {
             WHERE gm2.group_id = g.group_id
           ) AS members_avatars
         FROM tbl_groups g
-        WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1)
+        WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1) AND g.is_active = TRUE
       `;
 
       // Execute the query with the provided userId
@@ -166,7 +188,7 @@ module.exports = {
         FROM tbl_groups g
         LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
         LEFT JOIN tbl_expenses e ON e.group_id = g.group_id
-        WHERE g.group_id = $1
+        WHERE g.group_id = $1 AND is_active = TRUE
         GROUP BY g.group_id
       `;
 
@@ -251,6 +273,24 @@ module.exports = {
         SET is_settled = NOT is_settled 
         WHERE group_id = $1 AND admin_user = $2
         RETURNING is_settled;
+        `,
+        [group_id, user_id]
+      );
+
+      return result.rows[0]; // Returning the updated value
+    } catch (error) {
+      console.error("Error in toggling group settlement:", error.message);
+      throw error;
+    }
+  },
+  toggleGroupVisibilty: async ({ group_id, user_id }) => {
+    try {
+      const result = await client.query(
+        `
+        UPDATE tbl_groups 
+        SET is_active = NOT is_active 
+        WHERE group_id = $1 AND admin_user = $2
+        RETURNING is_active;
         `,
         [group_id, user_id]
       );

@@ -85,6 +85,8 @@ const Messages = {
   ALREADY_MEMBER: "You have already joined the group.",
   GROUP_SETTLED: "This group has been settled. You cannot Add | Edit | Delete expense.",
   GROUP_SETTLEMNT_TOGGLE: (status) => `Group has been ${status ? "Settled" : "Un-Settled"} succesfully`,
+  GROUP_STATUS_TOGGLE: (status) => `Group has been ${status ? "re-activated" : "de-activated"} succesfully`,
+  ADMIN_NOT_LEFT: "Admin user are not allowed to leave group!",
 };
 
 module.exports = Messages;

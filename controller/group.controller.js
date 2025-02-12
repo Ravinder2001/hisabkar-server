@@ -40,6 +40,27 @@ module.exports = {
       common.handleAsyncError(error, res);
     }
   },
+  leaveGroup: async (req, res) => {
+    try {
+      const response = await groupModel.leaveGroup({
+        groupId: req.params.group_id,
+        userId: req.user.user_id,
+      });
+
+      await trackExpenseChange({
+        groupId: req.params.group_id,
+        expenseId: null,
+        userId: req.user.user_id,
+        actionType: "LEFT",
+        oldAmount: null,
+        newAmount: null,
+      });
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
   getAllGroups: async (req, res) => {
     try {
       let groupList = await groupModel.getAllGroups(req.user.user_id);
@@ -108,6 +129,18 @@ module.exports = {
       });
 
       return common.successResponse(res, Messages.GROUP_SETTLEMNT_TOGGLE(response.is_settled), HttpStatus.OK);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  toggleGroupVisibilty: async (req, res) => {
+    try {
+      const response = await groupModel.toggleGroupVisibilty({
+        group_id: req.params.group_id,
+        user_id: req.user.user_id,
+      });
+
+      return common.successResponse(res, Messages.GROUP_STATUS_TOGGLE(response.is_active), HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);
     }
