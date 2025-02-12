@@ -1,5 +1,6 @@
 const { Client } = require("pg");
 const config = require("../configuration/config");
+console.log("🚀  config:", config);
 
 const client = new Client({
   user: config.DB.USER,
@@ -7,7 +8,7 @@ const client = new Client({
   database: config.DB.DATABASE,
   password: config.DB.PASSWORD,
   port: config.DB.PORT,
-  ssl: false,
+  ssl: config.NODE_ENV !== "local",
 });
 
 client.on("error", (err) => {
