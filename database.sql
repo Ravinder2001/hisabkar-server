@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS tbl_group_pairs (
 );
 
 CREATE TABLE IF NOT EXISTS tbl_expense_logs (
-  log_id SERIAL PRIMARY KEY,
+  log_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   group_id INT NOT NULL REFERENCES tbl_groups(group_id),
   expense_id INT NOT NULL,
   user_id INT NOT NULL REFERENCES tbl_users(user_id),
@@ -96,7 +96,13 @@ CREATE TABLE IF NOT EXISTS tbl_expense_logs (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-
+CREATE TABLE IF NOT EXISTS tbl_sw_subscriptions (
+  subscription_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE REFERENCES tbl_users(user_id),
+  endpoint TEXT NOT NULL,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 

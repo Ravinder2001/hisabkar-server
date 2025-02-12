@@ -65,4 +65,12 @@ module.exports = {
       })
       .max(5000),
   }),
+  subscriptionSchema: Joi.object({
+    endpoint: Joi.string().uri().max(500).required(), // Max length of 500 characters
+    expirationTime: Joi.string().optional().allow(null),
+    keys: Joi.object({
+      p256dh: Joi.string().max(256).required(), // Max length of 256 characters
+      auth: Joi.string().max(128).required(), // Max length of 128 characters
+    }).required(),
+  }),
 };

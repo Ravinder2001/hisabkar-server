@@ -16,6 +16,13 @@ const config = {
     PASSWORD: process.env.PASSWORD,
   },
   AVATAR_WEBSITE: process.env.AVATAR_WEBSITE,
+  VAPID: {
+    PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY,
+    PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
+  },
+  GOOGLE: {
+    GOOGLE_INFO_ENDPOINT: process.env.GOOGLE_USER_INFO_ENDPOINT,
+  },
 };
 
 module.exports = config;

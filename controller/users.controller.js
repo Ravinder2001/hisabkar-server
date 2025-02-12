@@ -6,6 +6,7 @@ const generateOTP = require("../helpers/generateOTP");
 const sendEmail = require("../helpers/sendEmail");
 const emailContent = require("../utils/constant/emailContent");
 const generateAvatarImage = require("../helpers/generateAvatar");
+const config = require("../configuration/config");
 
 module.exports = {
   sendOTP: async (req, res) => {
@@ -76,7 +77,7 @@ module.exports = {
       const access_token = req.body.token;
 
       // Use the access_token to get user info from Google's UserInfo endpoint
-      const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      const response = await fetch(config.GOOGLE.GOOGLE_INFO_ENDPOINT, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -101,6 +102,14 @@ module.exports = {
       return common.successResponse(res, Messages.LOGIN_SUCCESS, HttpStatus.OK, {
         token,
       });
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  sWSubscribe: async (req, res) => {
+    try {
+      await userModel.sWSubscribe({ ...req.body, userId: req.user.user_id });
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);
     }

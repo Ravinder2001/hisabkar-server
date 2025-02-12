@@ -105,9 +105,23 @@ module.exports = {
         WHERE group_id = $1`,
         [groupId, amount]
       );
+
+      const groupData = await client.query(
+        `
+          SELECT 
+          g.group_name, 
+          jsonb_agg(m.user_id) AS user_ids
+          FROM tbl_groups g
+          LEFT JOIN tbl_group_members m ON g.group_id = m.group_id
+          WHERE g.group_id = $1
+          GROUP BY g.group_name
+        `,
+        [groupId]
+      );
+
       const expenseData = await getExpenseById({ groupId, userId: paidBy, expenseId: expense_id });
       await client.query("COMMIT");
-      return expenseData;
+      return { expenseData, groupData: groupData.rows[0] };
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Error in creating group:", error.message);

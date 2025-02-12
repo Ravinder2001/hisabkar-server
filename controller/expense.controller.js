@@ -1,15 +1,34 @@
 const expenseModel = require("../model/expense.model");
+const usersModel = require("../model/users.model");
 const common = require("./common.controller");
 const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
 const { trackExpenseChange } = require("../helpers/expenseLog");
+const { sendNotificationsToUsers } = require("../helpers/pushService");
 
 module.exports = {
   addExpense: async (req, res) => {
     try {
       const response = await expenseModel.addExpense({ ...req.body, groupId: req.params.group_id, paidBy: req.user.user_id });
 
-      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response);
+      // Extract all user IDs from req.body.members except the current user
+      const userIds = response.groupData.user_ids.filter((id) => id !== req.user.user_id);
+
+      if (userIds.length) {
+        let subscriptions = await usersModel.getUsersSWData(userIds);
+
+        if (subscriptions.length) {
+          // Send notifications to each subscription
+          const payload = {
+            title: "New Expense Added",
+            body: `A new expense has been added to ${response.groupData.group_name}.`,
+            group_id: req.params.group_id,
+          };
+          subscriptions.forEach((sub) => sendNotificationsToUsers(sub, payload));
+        }
+      }
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response.expenseData);
     } catch (error) {
       common.handleAsyncError(error, res);
     }

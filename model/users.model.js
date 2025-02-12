@@ -1,4 +1,5 @@
 const client = require("../configuration/db");
+const generateTimestamp = require("../utils/common/generateTimestamp");
 
 module.exports = {
   checkNonVerifiedEmail: async (email) => {
@@ -144,6 +145,38 @@ module.exports = {
       return result.rows.length > 0;
     } catch (error) {
       console.error("Error in checking username:", error.message);
+      throw error;
+    }
+  },
+  sWSubscribe: async (values) => {
+    try {
+      await client.query(
+        `INSERT INTO tbl_sw_subscriptions (user_id, endpoint, p256dh, auth, created_at) 
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (user_id) 
+         DO UPDATE SET endpoint = $2, p256dh = $3, auth = $4, created_at = $5`,
+        [values.userId, values.endpoint, values.keys.p256dh, values.keys.auth, generateTimestamp()]
+      );
+
+      return;
+    } catch (error) {
+      console.error("Error in checking username:", error.message);
+      throw error;
+    }
+  },
+  getUsersSWData: async (usersArray) => {
+    try {
+      const { rows } = await client.query(
+        `SELECT user_id, endpoint, 
+              jsonb_build_object('p256dh', p256dh, 'auth', auth) AS keys
+       FROM tbl_sw_subscriptions 
+       WHERE user_id = ANY($1)`,
+        [usersArray]
+      );
+
+      return rows; // Return the fetched subscription data
+    } catch (error) {
+      console.error("Error in fetching user subscriptions:", error.message);
       throw error;
     }
   },
