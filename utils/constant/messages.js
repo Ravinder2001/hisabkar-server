@@ -87,6 +87,7 @@ const Messages = {
   GROUP_SETTLEMNT_TOGGLE: (status) => `Group has been ${status ? "Settled" : "Un-Settled"} succesfully`,
   GROUP_STATUS_TOGGLE: (status) => `Group has been ${status ? "re-activated" : "de-activated"} succesfully`,
   ADMIN_NOT_LEFT: "Admin user are not allowed to leave group!",
+  INVALID_JSON: "Invalid JSON format",
 };
 
 module.exports = Messages;

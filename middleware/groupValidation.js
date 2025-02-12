@@ -40,6 +40,7 @@ module.exports = {
       } else if (status === HttpStatus.NOT_FOUND) {
         return commonController.errorResponse(res, `Group not found with the id ${group_id}`, HttpStatus.NOT_FOUND);
       }
+
       next();
     } catch (error) {
       return commonController.handleAsyncError(error, res);

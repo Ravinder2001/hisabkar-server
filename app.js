@@ -3,13 +3,14 @@ const passport = require("passport");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
-const rateLimit = require("express-rate-limit");
 const moment = require("moment");
+const helmet = require("helmet");
 
 // const { Server } = require("socket.io");
 
 const mainRouter = require("./routes/routes");
 const config = require("./configuration/config");
+const Messages = require("./utils/constant/messages");
 
 require("./jobs/cronJob");
 require("./configuration/db");
@@ -24,13 +25,6 @@ const corsOptions = {
   optionsSuccessStatus: 200, // Some le gacy browsers (IE11, various SmartTVs) choke on 204
 };
 
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 15 minutes
-  limit: 20, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-  standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-});
-
 morgan.token("ist-date", () => {
   return moment().utcOffset("+05:30").format("DD/MMM/YYYY:HH:mm:ss Z");
 });
@@ -41,8 +35,21 @@ morgan.token("user", (req) => {
 });
 
 app.use(cors(corsOptions));
-app.use(limiter);
 app.disable("x-powered-by"); // Disable the X-Powered-By header
+app.use(helmet());
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"], // Allow only the same origin (your server)
+      scriptSrc: ["'self'"], // Only allow scripts from your domain
+      styleSrc: ["'self'"], // Only allow styles from your domain
+      imgSrc: ["'self'"], // Only allow images from your domain
+      connectSrc: ["'self'"], // Allow only API requests to your domain
+      frameAncestors: ["'none'"], // Block Clickjacking (no iframes)
+    },
+  })
+);
 
 // ? Passport initialization
 app.use(passport.initialize());
@@ -62,6 +69,14 @@ app.use((req, res, next) => {
   const userId = req.headers["x-user-id"]; // Extract custom header
   if (userId) {
     req.userId = userId; // Attach it to the request object
+  }
+  next();
+});
+
+// Handle JSON syntax errors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return res.status(400).json({ error: Messages.INVALID_JSON, message: err.message });
   }
   next();
 });

@@ -188,7 +188,7 @@ module.exports = {
         FROM tbl_groups g
         LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
         LEFT JOIN tbl_expenses e ON e.group_id = g.group_id
-        WHERE g.group_id = $1 AND is_active = TRUE
+        WHERE g.group_id = $1 AND g.is_active = TRUE
         GROUP BY g.group_id
       `;
 
