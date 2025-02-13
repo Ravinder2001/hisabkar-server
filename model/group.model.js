@@ -148,6 +148,7 @@ module.exports = {
             g.group_name,
             g.group_type_id,
             g.total_amount,
+            g.code,
             g.is_settled,
             (
                 SELECT COUNT(*) 
