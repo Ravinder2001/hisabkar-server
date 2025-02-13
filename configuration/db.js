@@ -1,14 +1,25 @@
 const { Client } = require("pg");
 const config = require("../configuration/config");
 
-const client = new Client({
+const isProduction = process.env.NODE_ENV === "prod";
+
+const clientConfig = {
   user: config.DB.USER,
   host: config.DB.HOST,
   database: config.DB.DATABASE,
   password: config.DB.PASSWORD,
   port: config.DB.PORT,
-  ssl: config.NODE_ENV !== "local",
-});
+};
+
+if (isProduction && process.env.PG_CA_CERT) {
+  const pem = Buffer.from(process.env.PG_CA_CERT, "base64").toString("utf-8");
+  clientConfig.ssl = {
+    rejectUnauthorized: true,
+    ca: pem,
+  };
+}
+
+const client = new Client(clientConfig);
 
 client.on("error", (err) => {
   console.error("PostgreSQL client error:", err);

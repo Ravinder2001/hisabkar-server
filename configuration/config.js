@@ -7,6 +7,7 @@ const config = {
     DATABASE: process.env.DB_NAME,
     PASSWORD: process.env.DB_PASSWORD,
     PORT: process.env.DB_PORT,
+    PG_CA_CERT: process.env.PG_CA_CERT,
   },
   JWT: {
     SECRET_KEY: process.env.SECRET,
