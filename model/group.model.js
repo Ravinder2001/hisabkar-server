@@ -179,8 +179,8 @@ module.exports = {
         const avatars = group.members_avatars || [];
         return {
           ...group,
-          members: avatars.slice(0, 5), // Only first 5 avatars
-          remaining_members: avatars.length > 5 ? avatars.length - 5 : undefined, // Remaining count
+          members: avatars.slice(0, 2), // Only first 5 avatars
+          remaining_members: avatars.length > 3 ? avatars.length - 3 : undefined, // Remaining count
           members_avatars: undefined, // Removing the raw avatars array
         };
       });
@@ -267,34 +267,51 @@ module.exports = {
   },
   getMyPairs: async ({ group_id, user_id }) => {
     try {
-      // Query to get users to whom the current user needs to send money
-      const sendQuery = await client.query(
+      // Fetch all expenses related to the group
+      const expenseQuery = await client.query(
         `
-        SELECT u.name AS user_name, gp.amount
-        FROM tbl_group_pairs gp
-        JOIN tbl_users u ON gp.receiver_user = u.user_id
-        WHERE gp.group_id = $1 AND gp.sender_user = $2 AND gp.amount > 0
-      `,
-        [group_id, user_id]
+        SELECT e.expense_id, e.amount AS total_amount, e.paid_by, em.user_id AS participant, em.amount AS share,
+               u.name AS participant_name, up.name AS payer_name
+        FROM tbl_expenses e
+        JOIN tbl_expense_members em ON e.expense_id = em.expense_id
+        JOIN tbl_users u ON em.user_id = u.user_id
+        JOIN tbl_users up ON e.paid_by = up.user_id
+        WHERE e.group_id = $1
+        `,
+        [group_id]
       );
 
-      // Query to get users from whom the current user will receive money
-      const receiveQuery = await client.query(
-        `
-        SELECT u.name AS user_name, gp.amount
-        FROM tbl_group_pairs gp
-        JOIN tbl_users u ON gp.sender_user = u.user_id
-        WHERE gp.group_id = $1 AND gp.receiver_user = $2 AND gp.amount > 0
-      `,
-        [group_id, user_id]
-      );
+      const transactions = expenseQuery.rows;
+      const balances = new Map();
 
-      return {
-        send: sendQuery.rows,
-        receive: receiveQuery.rows,
-      };
+      transactions.forEach(({ paid_by, participant, share }) => {
+        if (paid_by === participant) return; // Ignore self-payments
+
+        // If user paid, others owe them
+        if (paid_by === user_id) {
+          balances.set(participant, (balances.get(participant) || 0) + parseFloat(share));
+        }
+        // If user participated, they owe the payer
+        if (participant === user_id) {
+          balances.set(paid_by, (balances.get(paid_by) || 0) - parseFloat(share));
+        }
+      });
+
+      const send = [];
+      const receive = [];
+
+      // Process final balances
+      balances.forEach((amount, user) => {
+        if (amount > 0) {
+          receive.push({ user_name: transactions.find((t) => t.participant === user)?.participant_name, amount });
+        } else if (amount < 0) {
+          send.push({ user_name: transactions.find((t) => t.paid_by === user)?.payer_name, amount: Math.abs(amount) });
+        }
+      });
+
+      return { send, receive };
     } catch (error) {
-      console.error("Error in fetching group data:", error.message);
+      console.error("Error in fetching expense data:", error.message);
       throw error;
     }
   },

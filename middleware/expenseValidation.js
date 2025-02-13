@@ -12,7 +12,7 @@ module.exports = {
     try {
       // Step 1: Validate sum of members' amounts
       const totalAmount = members.reduce((sum, member) => sum + member.amount, 0);
-      if (totalAmount !== amount) {
+      if (Math.ceil(totalAmount) !== amount) {
         return commonController.errorResponse(res, Messages.INVALID_AMOUNT(totalAmount, amount), HttpStatus.BAD_REQUEST);
       }
 
@@ -38,7 +38,7 @@ module.exports = {
       return commonController.handleAsyncError(error, res);
     }
   },
-  validateExpenseGroupMembership: async (req, res, next) => {
+  validateGroupMembership: async (req, res, next) => {
     const { group_id } = req.params;
     const user_id = req.user.user_id;
 

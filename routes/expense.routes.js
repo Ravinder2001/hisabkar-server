@@ -16,7 +16,7 @@ router.post(
   validateData.validateGroupId,
   validateData.validateGroupSettlement,
   validateExpenseData.validateExpenseAmount,
-  validateExpenseData.validateExpenseGroupMembership,
+  validateExpenseData.validateGroupMembership,
   ExpenseController.addExpense
 );
 router.put(
@@ -27,18 +27,18 @@ router.put(
   validateData.validateExpenseId,
   validateData.validateGroupSettlement,
   validateExpenseData.validateExpenseAmount,
-  validateExpenseData.validateExpenseGroupMembership,
+  validateExpenseData.validateGroupMembership,
   validateExpenseData.validateExpenseOwnership,
   ExpenseController.editExpense
 );
-router.get("/getAllExpenses/:group_id", authenticateJWT, validateData.validateGroupId, validateExpenseData.validateExpenseGroupMembership, ExpenseController.getAllExpenses);
+router.get("/getAllExpenses/:group_id", authenticateJWT, validateData.validateGroupId, validateExpenseData.validateGroupMembership, ExpenseController.getAllExpenses);
 router.delete(
   "/:group_id/:expense_id",
   authenticateJWT,
   validateData.validateGroupId,
   validateData.validateExpenseId,
   validateData.validateGroupSettlement,
-  validateExpenseData.validateExpenseGroupMembership,
+  validateExpenseData.validateGroupMembership,
   validateExpenseData.validateExpenseOwnership,
   ExpenseController.deleteExpense
 );
