@@ -401,4 +401,20 @@ module.exports = {
       throw error;
     }
   },
+  getExpenseDataById: async (values) => {
+    try {
+      const logs = await client.query(
+        `SELECT
+         *
+        FROM tbl_expenses
+        WHERE expense_id = $1
+        `,
+        [values.expense_id]
+      );
+      return logs.rows[0];
+    } catch (error) {
+      console.error("Error in fetching expenses:", error.message);
+      throw error;
+    }
+  },
 };

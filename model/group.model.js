@@ -33,8 +33,38 @@ module.exports = {
         INSERT INTO tbl_group_members(group_id,user_id) VALUES($1,$2)`,
         [groupId.rows[0].group_id, values.userId]
       );
+
+      const query = `
+        SELECT
+          g.group_id,
+          g.group_name,
+          g.group_type_id,
+          g.total_amount,
+          g.is_settled,
+          (
+            SELECT COUNT(*) 
+            FROM tbl_group_members gm_count 
+            WHERE gm_count.group_id = g.group_id
+          ) AS total_members_count,
+          CASE 
+            WHEN g.admin_user = $1 THEN true
+            ELSE false
+          END AS is_you_admin,
+          ARRAY(
+            SELECT u.avatar
+            FROM tbl_users u
+            JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
+            WHERE gm2.group_id = g.group_id
+          ) AS members
+        FROM tbl_groups g
+        WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1) AND group_id = $2 AND g.is_active = TRUE
+      `;
+
+      // Execute the query with the provided userId
+      const groupQuery = await client.query(query, [values.userId, groupId.rows[0].group_id]);
+
       await client.query("COMMIT");
-      return code;
+      return { code, group_data: groupQuery.rows[0] };
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Error in creating group:", error.message);
@@ -113,29 +143,32 @@ module.exports = {
     try {
       // SQL query to get all the required information
       const query = `
-        SELECT
-          g.group_id,
-          g.group_name,
-          g.group_type_id,
-          g.total_amount,
-          g.is_settled,
-          (
-            SELECT COUNT(*) 
-            FROM tbl_group_members gm_count 
-            WHERE gm_count.group_id = g.group_id
-          ) AS total_members_count,
-          CASE 
-            WHEN g.admin_user = $1 THEN true
-            ELSE false
-          END AS is_you_admin,
-          ARRAY(
-            SELECT u.avatar
-            FROM tbl_users u
-            JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
-            WHERE gm2.group_id = g.group_id
-          ) AS members_avatars
+              SELECT
+            g.group_id,
+            g.group_name,
+            g.group_type_id,
+            g.total_amount,
+            g.is_settled,
+            (
+                SELECT COUNT(*) 
+                FROM tbl_group_members gm_count 
+                WHERE gm_count.group_id = g.group_id
+            ) AS total_members_count,
+            CASE 
+                WHEN g.admin_user = $1 THEN true
+                ELSE false
+            END AS is_you_admin,
+            ARRAY(
+                SELECT u.avatar
+                FROM tbl_users u
+                JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
+                WHERE gm2.group_id = g.group_id
+            ) AS members_avatars
         FROM tbl_groups g
-        WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1) AND g.is_active = TRUE
+        WHERE g.group_id IN (SELECT gm.group_id FROM tbl_group_members gm WHERE gm.user_id = $1) 
+        AND g.is_active = TRUE
+        ORDER BY g.created_at DESC;
+  
       `;
 
       // Execute the query with the provided userId

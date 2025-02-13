@@ -12,9 +12,7 @@ module.exports = {
         userId: req.user.user_id,
       });
 
-      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, {
-        code: createRes,
-      });
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, createRes);
     } catch (error) {
       common.handleAsyncError(error, res);
     }
