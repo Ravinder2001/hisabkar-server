@@ -43,7 +43,7 @@ app.use((req, res, next) => {
   const originalSend = res.json; // Store original res.json
 
   res.json = function (data) {
-    if (process.env.NODE_ENV === "prod") {
+    if (process.env.NODE_ENV === "prod" && data.data) {
       const encryptedData = encryptData(data.data);
       originalSend.call(this, {
         ...data,
