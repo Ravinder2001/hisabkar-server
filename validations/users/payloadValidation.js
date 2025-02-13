@@ -73,4 +73,15 @@ module.exports = {
       auth: Joi.string().max(128).required(), // Max length of 128 characters
     }).required(),
   }),
+  emailValidation: Joi.object({
+    email: Joi.string()
+      .email()
+      .required()
+      .messages({
+        "string.base": "Email must be a string",
+        "string.email": "Email must be a valid email address",
+        "any.required": "Email is required",
+      })
+      .max(constant.LENGTH_VALIDATIONS.EMAIL),
+  }),
 };
