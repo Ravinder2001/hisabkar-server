@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const config = require("../configuration/config");
+console.log("🚀  config:", config);
 
 const SECRET_KEY = Buffer.from(config.CRYPTO.SECRET_KEY, "utf-8"); // 32 bytes
 const IV = Buffer.from(config.CRYPTO.IV_KEY, "utf-8"); // 16 bytes
