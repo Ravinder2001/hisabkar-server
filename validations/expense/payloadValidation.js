@@ -14,6 +14,6 @@ module.exports = {
         amount: Joi.number().required().max(constant.LENGTH_VALIDATIONS.AMOUNT),
       })
       .required()
-      .min(2),
+      .min(1),
   }),
 };

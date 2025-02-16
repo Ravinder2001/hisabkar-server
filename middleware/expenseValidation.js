@@ -4,16 +4,21 @@ const groupModal = require("../model/group.model");
 // const dbValidation = require("../utils/common/validation/dbValidation");
 const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
+const _ = require("lodash");
 
 module.exports = {
   validateExpenseAmount: async (req, res, next) => {
     const { amount, members } = req.body;
 
     try {
-      // Step 1: Validate sum of members' amounts
-      const totalAmount = members.reduce((sum, member) => sum + member.amount, 0);
-      if (Math.ceil(totalAmount) !== amount) {
-        return commonController.errorResponse(res, Messages.INVALID_AMOUNT(totalAmount, amount), HttpStatus.BAD_REQUEST);
+      // Step 1: Validate sum of members' amounts using Lodash
+      const totalAmount = _.sumBy(members, "amount");
+
+      // Fix floating-point precision issue using Lodash round
+      const roundedTotal = _.round(totalAmount, 2);
+
+      if (roundedTotal !== amount) {
+        return commonController.errorResponse(res, Messages.INVALID_AMOUNT(roundedTotal, amount), HttpStatus.BAD_REQUEST);
       }
 
       // Proceed to the next middleware if everything is valid
