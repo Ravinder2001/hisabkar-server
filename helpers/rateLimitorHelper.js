@@ -9,7 +9,7 @@ const commonLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  limit: 3, // Limit each IP to 3 authentication attempts per minute
+  limit: 200, // Limit each IP to 3 authentication attempts per minute
   standardHeaders: "draft-7",
   legacyHeaders: false,
 });

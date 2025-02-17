@@ -84,4 +84,14 @@ module.exports = {
       })
       .max(constant.LENGTH_VALIDATIONS.EMAIL),
   }),
+  updateProfileDetails: Joi.object({
+    name: Joi.string().min(1).max(constant.LENGTH_VALIDATIONS.NAME).required().messages({
+      "string.base": "Full name must be a string",
+      "string.min": "Full name must not be empty",
+      "string.max": "Full name must be at most 20 characters long",
+      "any.required": "Full name is required",
+    }),
+    avatar: Joi.string().min(1).max(constant.LENGTH_VALIDATIONS.DES).required(),
+    is_available: Joi.boolean().required(),
+  }),
 };
