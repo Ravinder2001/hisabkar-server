@@ -2,11 +2,10 @@ const userModel = require("../model/users.model");
 const common = require("./common.controller");
 const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
-const generateOTP = require("../helpers/generateOTP");
 const sendEmail = require("../helpers/sendEmail");
 const emailContent = require("../utils/constant/emailContent");
-const generateAvatarImage = require("../helpers/generateAvatar");
 const config = require("../configuration/config");
+const { generateAvatarImage, generateOTP, maskEmail } = require("../utils/common/common");
 
 module.exports = {
   sendOTP: async (req, res) => {
@@ -109,6 +108,41 @@ module.exports = {
   sWSubscribe: async (req, res) => {
     try {
       await userModel.sWSubscribe({ ...req.body, userId: req.user.user_id });
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  getUserProfileDetails: async (req, res) => {
+    try {
+      const response = await userModel.getUserProfileDetails(req.user.user_id);
+      const maskedEmail = maskEmail(response.email);
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, { ...response, email: maskedEmail });
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  generateNewAvatars: async (req, res) => {
+    try {
+      let avatarImage1 = generateAvatarImage();
+      let avatarImage2 = generateAvatarImage();
+      let avatarImage3 = generateAvatarImage();
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, [avatarImage1, avatarImage2, avatarImage3]);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  updateProfileDetails: async (req, res) => {
+    try {
+      await userModel.updateProfileDetails({ ...req.body, userId: req.user.user_id });
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  toggleAvailiblityStatus: async (req, res) => {
+    try {
+      await userModel.toggleAvailiblityStatus(req.user.user_id);
       return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);

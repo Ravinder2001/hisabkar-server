@@ -1,5 +1,5 @@
 const client = require("../configuration/db");
-const generateOTP = require("../helpers/generateOTP");
+const { generateOTP } = require("../utils/common/common");
 const Messages = require("../utils/constant/messages");
 
 module.exports = {
@@ -195,35 +195,38 @@ module.exports = {
   getGroupDataById: async (values) => {
     try {
       const query = `
-        SELECT
-          g.group_name,
-          g.group_type_id,
-          g.total_amount,
-          g.is_settled,
-          COUNT(DISTINCT gm.member_id) AS total_members_count,
-          COUNT(DISTINCT e.expense_id) AS total_expenses_count,
-          CASE 
-            WHEN g.admin_user = $2 THEN true
-            ELSE false
-          END AS is_you_admin,
-          ARRAY(
-            SELECT JSON_BUILD_OBJECT(
-              'id', u.user_id, 
-              'name', u.name, 
-              'avatar', u.avatar, 
-              'total_spent', COALESCE(SUM(e.amount), 0)
-            )
-            FROM tbl_users u
-            JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
-            LEFT JOIN tbl_expenses e ON e.paid_by = u.user_id AND e.group_id = g.group_id
-            WHERE gm2.group_id = g.group_id
-            GROUP BY u.user_id
-          ) AS members
-        FROM tbl_groups g
-        LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
-        LEFT JOIN tbl_expenses e ON e.group_id = g.group_id
-        WHERE g.group_id = $1 AND g.is_active = TRUE
-        GROUP BY g.group_id
+       SELECT
+  g.group_name,
+  g.group_type_id,
+  g.total_amount,
+  g.is_settled,
+  COUNT(DISTINCT gm.member_id) AS total_members_count,
+  COUNT(DISTINCT e.expense_id) AS total_expenses_count,
+  CASE 
+    WHEN g.admin_user = $2 THEN true
+    ELSE false
+  END AS is_you_admin,
+  ARRAY(
+    SELECT JSON_BUILD_OBJECT(
+      'id', u.user_id, 
+      'name', u.name, 
+      'avatar', u.avatar, 
+      'total_spent', COALESCE(SUM(e.amount), 0),
+      'is_available', COALESCE(uo.availibilty_status, false) -- Include availability status
+    )
+    FROM tbl_users u
+    JOIN tbl_group_members gm2 ON gm2.user_id = u.user_id
+    LEFT JOIN tbl_expenses e ON e.paid_by = u.user_id AND e.group_id = g.group_id
+    LEFT JOIN tbl_user_options uo ON uo.user_id = u.user_id -- Join user options table
+    WHERE gm2.group_id = g.group_id
+    GROUP BY u.user_id, uo.availibilty_status
+  ) AS members
+FROM tbl_groups g
+LEFT JOIN tbl_group_members gm ON gm.group_id = g.group_id
+LEFT JOIN tbl_expenses e ON e.group_id = g.group_id
+WHERE g.group_id = $1 AND g.is_active = TRUE
+GROUP BY g.group_id;
+
       `;
 
       const groupQuery = await client.query(query, [values.groupId, values.userId]);

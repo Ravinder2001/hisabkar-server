@@ -98,6 +98,12 @@ module.exports = {
       `,
         [UserID, values.upiAddress]
       );
+      await client.query(
+        `
+        INSERT INTO tbl_user_options(user_id,availibilty_status,created_at) VALUES($1,$2)
+      `,
+        [UserID, true, generateTimestamp()]
+      );
       await client.query("COMMIT");
       return;
     } catch (error) {
@@ -175,6 +181,57 @@ module.exports = {
       );
 
       return rows; // Return the fetched subscription data
+    } catch (error) {
+      console.error("Error in fetching user subscriptions:", error.message);
+      throw error;
+    }
+  },
+  getUserProfileDetails: async (user_id) => {
+    try {
+      const { rows } = await client.query(
+        `
+        SELECT 
+        u.email,
+        u.name,
+        u.avatar,
+        u.created_at,
+        u.role,
+        uo.availibilty_status as is_available
+        FROM tbl_users u
+        LEFT JOIN tbl_user_options uo ON uo.user_id = u.user_id
+       WHERE u.user_id = $1`,
+        [user_id]
+      );
+
+      return rows[0]; // Return the fetched subscription data
+    } catch (error) {
+      console.error("Error in fetching user subscriptions:", error.message);
+      throw error;
+    }
+  },
+  updateProfileDetails: async (values) => {
+    try {
+      const { rows } = await client.query(
+        `
+        UPDATE tbl_users SET name = $1, avatar = $2 WHERE user_id = $3`,
+        [values.name, values.avatar, values.userId]
+      );
+
+      return rows[0]; // Return the fetched subscription data
+    } catch (error) {
+      console.error("Error in fetching user subscriptions:", error.message);
+      throw error;
+    }
+  },
+  toggleAvailiblityStatus: async (user_id) => {
+    try {
+      await client.query(
+        `
+        UPDATE tbl_user_options SET availibilty_status = NOT availibilty_status WHERE user_id = $1`,
+        [user_id]
+      );
+
+      return; // Return the fetched subscription data
     } catch (error) {
       console.error("Error in fetching user subscriptions:", error.message);
       throw error;
