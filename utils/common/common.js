@@ -13,8 +13,8 @@ const maskEmail = (email) => {
 };
 
 const generateAvatarImage = () => {
-  const random = Math.floor(Math.random() * 100);
-  const avatar = `${avatarURL}/7.x/adventurer/svg?seed=${random}&gender=male`;
+  const random = Math.floor(Math.random() * 10000);
+  const avatar = `${avatarURL}7.x/adventurer/svg?seed=${random}&gender=male`;
   return avatar;
 };
 

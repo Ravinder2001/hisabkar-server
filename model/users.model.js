@@ -211,14 +211,14 @@ module.exports = {
   },
   updateProfileDetails: async (values) => {
     try {
-      const { rows } = await client.query(
-        `
-        UPDATE tbl_users SET name = $1, avatar = $2 WHERE user_id = $3`,
-        [values.name, values.avatar, values.userId]
-      );
+      await client.query("BEGIN");
+      await client.query(`UPDATE tbl_users SET name = $1, avatar = $2 WHERE user_id = $3`, [values.name, values.avatar, values.userId]);
+      await client.query(`UPDATE tbl_user_options SET availibilty_status = $1 WHERE user_id = $2`, [values.is_available, values.userId]);
 
-      return rows[0]; // Return the fetched subscription data
+      await client.query("COMMIT");
+      return;
     } catch (error) {
+      await client.query("ROLLBACK");
       console.error("Error in fetching user subscriptions:", error.message);
       throw error;
     }
