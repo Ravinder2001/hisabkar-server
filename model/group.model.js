@@ -407,33 +407,31 @@ GROUP BY g.group_id;
       throw error;
     }
   },
-  getGroupLogs: async ({ group_id, user_id }) => {
+  getGroupLogs: async ({ group_id }) => {
     try {
       // Base query for fetching group logs with the join to get the expense name if action type involves expenses
       let query = `
-    SELECT 
-      gl.log_id, 
-      u.name, 
-      gl.action_type, 
-      gl.old_amount, 
-      gl.new_amount, 
-      gl.created_at,
-      e.expense_id,
-      e.expense_name
-    FROM tbl_group_logs gl
-    LEFT JOIN tbl_expenses e 
-      ON e.group_id = gl.group_id
-      AND (gl.action_type IN ('EDIT', 'DELETE') AND e.group_id = $1)
-    LEFT JOIN tbl_users u ON gl.user_id = u.user_id
-      WHERE gl.group_id = $1`;
+ SELECT DISTINCT
+  gl.log_id,
+  u.name,
+  gl.action_type,
+  gl.old_amount,
+  gl.new_amount,
+  gl.created_at,
+  e.expense_id,
+  e.expense_name
+FROM tbl_group_logs gl
+LEFT JOIN tbl_users u 
+  ON gl.user_id = u.user_id
+LEFT JOIN tbl_expenses e
+  ON e.group_id = gl.group_id
+  AND e.expense_id = CASE 
+    WHEN gl.action_type IN ('EDIT', 'DELETE') THEN gl.expense_id
+    ELSE NULL
+  END
+WHERE gl.group_id = $1`;
 
       const queryParams = [group_id];
-
-      // If user_id is provided, filter by user_id
-      if (user_id) {
-        query += ` AND gl.user_id = $2`;
-        queryParams.push(user_id);
-      }
 
       // Execute the query
       const result = await client.query(query, queryParams);
