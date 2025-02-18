@@ -355,4 +355,56 @@ GROUP BY g.group_id;
       throw error;
     }
   },
+  downloadGroupData: async ({ group_id }) => {
+    try {
+      // Fetch group details
+      const groupQuery = `
+    SELECT g.group_name, gt.type_name AS group_type, g.total_amount
+    FROM tbl_groups g
+    JOIN tbl_group_types gt ON g.group_type_id = gt.group_type_id
+    WHERE g.group_id = $1;
+  `;
+      const groupResult = await client.query(groupQuery, [group_id]);
+
+      const group = groupResult.rows[0];
+
+      // Fetch group members with their total spending
+      const membersQuery = `
+    SELECT u.user_id, u.name
+    FROM tbl_group_members gm
+    JOIN tbl_users u ON gm.user_id = u.user_id
+    LEFT JOIN tbl_expense_members em ON gm.user_id = em.user_id
+    LEFT JOIN tbl_expenses e ON em.expense_id = e.expense_id
+    WHERE gm.group_id = $1 AND e.group_id = $1
+    GROUP BY u.user_id, u.name;
+  `;
+      const membersResult = await client.query(membersQuery, [group_id]);
+      const members = membersResult.rows;
+
+      // Fetch expenses with breakdown
+      const expensesQuery = `
+    SELECT e.expense_id, e.expense_name, et.type_name AS expense_type, e.amount AS expense_amount, e.created_at, u.name AS paid_by
+    FROM tbl_expenses e
+    JOIN tbl_expense_types et ON e.expense_type_id = et.expense_type_id
+    JOIN tbl_users u ON e.paid_by = u.user_id
+    WHERE e.group_id = $1;
+  `;
+      const expensesResult = await client.query(expensesQuery, [group_id]);
+      const expenses = expensesResult.rows;
+
+      // Fetch expense splits
+      const expenseMembersQuery = `
+    SELECT em.expense_id, u.name, em.amount
+    FROM tbl_expense_members em
+    JOIN tbl_users u ON em.user_id = u.user_id
+    WHERE em.expense_id IN (SELECT expense_id FROM tbl_expenses WHERE group_id = $1);
+  `;
+      const expenseMembersResult = await client.query(expenseMembersQuery, [group_id]);
+      const expenseMembers = expenseMembersResult.rows;
+      return { group, members, expenses, expenseMembers };
+    } catch (error) {
+      console.error("Error in toggling group settlement:", error.message);
+      throw error;
+    }
+  },
 };
