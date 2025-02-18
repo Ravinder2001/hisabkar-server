@@ -6,7 +6,7 @@ const IV = Buffer.from(config.CRYPTO.IV_KEY, "utf-8"); // 16 bytes
 
 const encryptData = (data) => {
   const cipher = crypto.createCipheriv("aes-256-cbc", SECRET_KEY, IV);
-  let encrypted = cipher.update(data);
+  let encrypted = cipher.update(JSON.stringify(data));
   encrypted = Buffer.concat([encrypted, cipher.final()]);
   return encrypted.toString("base64"); // Use Base64 instead of Hex
 };

@@ -210,10 +210,9 @@ module.exports = {
         sheet.addRow([...expenseRow, ...memberAmounts]);
       });
 
-      // Set response headers for file download
+      // Backend response headers should include:
       res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-      res.setHeader("Content-Disposition", "attachment; filename=group_report.xlsx");
-
+      res.setHeader("Content-Disposition", "attachment; filename=group_data.xlsx");
       // Send the file
       await workbook.xlsx.write(res);
       return res.end();
