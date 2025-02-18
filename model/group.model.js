@@ -443,4 +443,35 @@ WHERE gl.group_id = $1`;
       throw error;
     }
   },
+  getGrpupSpendAnalysis: async ({ group_id, user_id }) => {
+    try {
+      // Base query for fetching group logs with the join to get the expense name if action type involves expenses
+      let query = `
+          SELECT 
+              et.type_name AS expense_type,
+              COALESCE(SUM(e.amount), 0) AS total_amount_spent
+          FROM 
+              tbl_expense_types et
+          LEFT JOIN 
+              tbl_expenses e ON e.expense_type_id = et.expense_type_id 
+              AND e.group_id = $1
+              AND e.is_active = TRUE
+              AND ($2::INTEGER IS NULL OR e.paid_by = $2::INTEGER)
+          GROUP BY 
+              et.type_name
+          ORDER BY 
+              expense_type ASC;`;
+
+      const queryParams = [group_id, user_id];
+
+      // Execute the query
+      const result = await client.query(query, queryParams);
+
+      // Return the logs with expense names if available
+      return result.rows;
+    } catch (error) {
+      console.error("Error in fetching group logs:", error.message);
+      throw error;
+    }
+  },
 };

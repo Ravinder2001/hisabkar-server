@@ -232,4 +232,16 @@ module.exports = {
       common.handleAsyncError(error, res);
     }
   },
+  getGrpupSpendAnalysis: async (req, res) => {
+    try {
+      const response = await groupModel.getGrpupSpendAnalysis({
+        group_id: req.params.group_id,
+        user_id: req.params.user_id != -1 ? req.params.user_id : null,
+      });
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response, response.length);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
 };
