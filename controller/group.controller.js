@@ -3,6 +3,7 @@ const common = require("./common.controller");
 const { HttpStatus } = require("../utils/constant/constant");
 const Messages = require("../utils/constant/messages");
 const { getExpenseChangeLog, trackExpenseChange } = require("../helpers/expenseLog");
+const ExcelJS = require("exceljs");
 
 module.exports = {
   createGroup: async (req, res) => {
@@ -139,6 +140,95 @@ module.exports = {
       });
 
       return common.successResponse(res, Messages.GROUP_STATUS_TOGGLE(response.is_active), HttpStatus.OK);
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+
+  downloadGroupData: async (req, res) => {
+    try {
+      const response = await groupModel.downloadGroupData({
+        group_id: req.params.group_id,
+      });
+
+      const { group, members, expenses, expenseMembers } = response;
+
+      // Step 1: Initialize a map to track total spent by each user
+      const totalSpentMap = new Map();
+
+      // Step 2: Iterate over expenses to calculate the total spent
+      expenses.forEach((expense) => {
+        const { paid_by, expense_amount } = expense;
+
+        // Find the user ID for the person who paid
+        const user = members.find((member) => member.name === paid_by);
+
+        // If the user is found, add the expense amount to their total spent
+        if (user) {
+          const currentTotal = totalSpentMap.get(user.user_id) || 0;
+          totalSpentMap.set(user.user_id, currentTotal + parseFloat(expense_amount));
+        }
+      });
+
+      // Step 3: Create an array of each user with their total spent
+      const result = members.map((member) => ({
+        user_id: member.user_id,
+        name: member.name,
+        total_spent: totalSpentMap.get(member.user_id) || 0,
+      }));
+
+      // Create an Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet("Group Report");
+
+      // Header - Group Info
+      sheet.addRow(["Group Name:", group.group_name]);
+      sheet.addRow(["Group Type:", group.group_type]);
+      sheet.addRow(["Total Amount Spent:", group.total_amount]);
+      sheet.addRow([]); // Blank row
+
+      // Group Members Section
+      sheet.addRow(["Group Members", "Total Spent"]);
+      result.forEach((member) => {
+        sheet.addRow([member.name, member.total_spent]);
+      });
+
+      sheet.addRow([]); // Blank row
+
+      // Expenses Section
+      sheet.addRow(["Expense Name", "Expense Type", "Expense Amount", "Created At", "Paid By", ...members.map((m) => m.name)]);
+
+      expenses.forEach((expense) => {
+        const expenseRow = [expense.expense_name, expense.expense_type, expense.expense_amount, expense.created_at, expense.paid_by];
+
+        // Add amounts per user
+        const memberAmounts = members.map((member) => {
+          const memberExpense = expenseMembers.find((em) => em.expense_id === expense.expense_id && em.name === member.name);
+          return memberExpense ? memberExpense.amount : 0;
+        });
+
+        sheet.addRow([...expenseRow, ...memberAmounts]);
+      });
+
+      // Set response headers for file download
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", "attachment; filename=group_report.xlsx");
+
+      // Send the file
+      await workbook.xlsx.write(res);
+      return res.end();
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  getGroupLogs: async (req, res) => {
+    try {
+      const response = await groupModel.getGroupLogs({
+        group_id: req.params.group_id,
+        user_id: req.user.user_id,
+      });
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response, response.length);
     } catch (error) {
       common.handleAsyncError(error, res);
     }

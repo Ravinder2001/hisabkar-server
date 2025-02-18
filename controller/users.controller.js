@@ -6,6 +6,7 @@ const sendEmail = require("../helpers/sendEmail");
 const emailContent = require("../utils/constant/emailContent");
 const config = require("../configuration/config");
 const { generateAvatarImage, generateOTP, maskEmail } = require("../utils/common/common");
+const { encryptData } = require("../utils/encryption");
 
 module.exports = {
   sendOTP: async (req, res) => {
@@ -35,7 +36,8 @@ module.exports = {
   register: async (req, res) => {
     try {
       let avatarImage = generateAvatarImage();
-      await userModel.register({ ...req.body, avatar: avatarImage });
+      const hashedUPIAddress = encryptData(req.body.upiAddress);
+      await userModel.register({ ...req.body, avatar: avatarImage, upiAddress: hashedUPIAddress });
       const user = await userModel.getUserDetailsByEmail(req.body.email);
 
       if (!user) {
