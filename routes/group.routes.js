@@ -34,5 +34,6 @@ router.get(
 );
 router.get("/downloadGroupData/:group_id", authenticateJWT, validateData.validateGroupId, validateExpData.validateGroupMembership, GroupController.downloadGroupData);
 router.get("/groupLogs/:group_id", authenticateJWT, validateData.validateGroupId, validateExpData.validateGroupMembership, GroupController.getGroupLogs);
+router.get("/spendAnalysis/:group_id/:user_id", authenticateJWT, validateData.validateGroupId, validateExpData.validateGroupMembership, GroupController.getGrpupSpendAnalysis);
 
 module.exports = router;
