@@ -33,5 +33,6 @@ router.get(
   GroupController.toggleGroupVisibilty
 );
 router.get("/downloadGroupData/:group_id", authenticateJWT, validateData.validateGroupId, validateExpData.validateGroupMembership, GroupController.downloadGroupData);
+router.get("/groupLogs/:group_id", authenticateJWT, validateData.validateGroupId, validateExpData.validateGroupMembership, GroupController.getGroupLogs);
 
 module.exports = router;

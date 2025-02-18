@@ -144,6 +144,7 @@ module.exports = {
       common.handleAsyncError(error, res);
     }
   },
+
   downloadGroupData: async (req, res) => {
     try {
       const response = await groupModel.downloadGroupData({
@@ -216,6 +217,18 @@ module.exports = {
       // Send the file
       await workbook.xlsx.write(res);
       return res.end();
+    } catch (error) {
+      common.handleAsyncError(error, res);
+    }
+  },
+  getGroupLogs: async (req, res) => {
+    try {
+      const response = await groupModel.getGroupLogs({
+        group_id: req.params.group_id,
+        user_id: req.user.user_id,
+      });
+
+      return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK, response, response.length);
     } catch (error) {
       common.handleAsyncError(error, res);
     }
