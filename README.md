@@ -32,19 +32,24 @@ Hisabkar is a feature-rich expense splitting application with a robust backend b
    cd hisabkar-server
    ```
 2. Install dependencies
+   ```sh
    npm install
+   ```
 3. Setup .env
+
+   ```sh
+
    NODE_ENV=prod
    PORT=5000
 
-# Database
-
-DB_URL=
-DB_HOST=
-DB_NAME=
-DB_USER=
-DB_PASSWORD=
-DB_PORT=
+   # Database
+   DB_URL=
+   DB_HOST=
+   DB_NAME=
+   DB_USER=
+   DB_PASSWORD=
+   DB_PORT=
+   ```
 
 # JWT Secret
 
@@ -77,5 +82,9 @@ CRYPTO_IV=
 
 PG_CA_CERT=
 
+````
+
 4. Start the server
-   npm run start
+```sh
+npm run start
+````
