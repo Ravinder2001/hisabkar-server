@@ -49,42 +49,33 @@ Hisabkar is a feature-rich expense splitting application with a robust backend b
    DB_USER=
    DB_PASSWORD=
    DB_PORT=
+
+   # JWT Secret
+   SECRET=
+
+   # Email (Nodemailer)
+   EMAIL=
+   PASSWORD=
+
+   # Avatar Generator API
+   AVATAR_WEBSITE=https://api.dicebear.com/
+
+   # Google OAuth
+   GOOGLE_USER_INFO_ENDPOINT=https://www.googleapis.com/oauth2/v3/userinfo
+
+   # Push Notification Keys
+   VAPID_PUBLIC_KEY=
+   VAPID_PRIVATE_KEY=
+
+   # Crypto Encryption
+   CRYPTO_SECRET_KEY=
+   CRYPTO_IV=
+
+   # PostgreSQL CA Certificate
+   PG_CA_CERT=
    ```
 
-# JWT Secret
-
-SECRET=
-
-# Email (Nodemailer)
-
-EMAIL=
-PASSWORD=
-
-# Avatar Generator API
-
-AVATAR_WEBSITE=https://api.dicebear.com/
-
-# Google OAuth
-
-GOOGLE_USER_INFO_ENDPOINT=https://www.googleapis.com/oauth2/v3/userinfo
-
-# Push Notification Keys
-
-VAPID_PUBLIC_KEY=
-VAPID_PRIVATE_KEY=
-
-# Crypto Encryption
-
-CRYPTO_SECRET_KEY=
-CRYPTO_IV=
-
-# PostgreSQL CA Certificate
-
-PG_CA_CERT=
-
-````
-
 4. Start the server
-```sh
-npm run start
-````
+   ```sh
+   npm run start
+   ```
