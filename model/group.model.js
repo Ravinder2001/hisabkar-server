@@ -1,5 +1,6 @@
 const client = require("../configuration/db");
 const { generateOTP } = require("../utils/common/common");
+const generateTimestamp = require("../utils/common/generateTimestamp");
 const Messages = require("../utils/constant/messages");
 
 module.exports = {
@@ -339,18 +340,22 @@ GROUP BY g.group_id;
   },
   toggleGroupVisibilty: async ({ group_id, user_id }) => {
     try {
+      await client.query("BEGIN");
       const result = await client.query(
         `
         UPDATE tbl_groups 
-        SET is_active = NOT is_active 
-        WHERE group_id = $1 AND admin_user = $2
+        SET 
+        is_active = NOT is_active,
+        deleted_on = $2
+        WHERE group_id = $1 AND admin_user = $3
         RETURNING is_active;
         `,
-        [group_id, user_id]
+        [group_id, generateTimestamp(), user_id]
       );
-
+      await client.query("COMMIT");
       return result.rows[0]; // Returning the updated value
     } catch (error) {
+      await client.query("ROLLBACK");
       console.error("Error in toggling group settlement:", error.message);
       throw error;
     }
@@ -470,6 +475,49 @@ WHERE gl.group_id = $1`;
       // Return the logs with expense names if available
       return result.rows;
     } catch (error) {
+      console.error("Error in fetching group logs:", error.message);
+      throw error;
+    }
+  },
+  deleteExpiredGroup: async () => {
+    try {
+      await client.query("BEGIN");
+
+      // Find groups eligible for deletion
+      const findGroupsQuery = `
+      SELECT group_id FROM tbl_groups 
+      WHERE is_active = FALSE 
+        AND deleted_on IS NOT NULL 
+        AND deleted_on < NOW() - INTERVAL '30 days';
+`;
+
+      const groupsToDelete = await client.query(findGroupsQuery);
+
+      const groupIds = groupsToDelete.rows.map((row) => row.group_id);
+
+      // Delete related expense members
+      await client.query(
+        `DELETE FROM tbl_expense_members 
+ WHERE expense_id IN (SELECT expense_id FROM tbl_expenses WHERE group_id = ANY($1));`,
+        [groupIds]
+      );
+
+      // Delete related expenses
+      await client.query(`DELETE FROM tbl_expenses WHERE group_id = ANY($1);`, [groupIds]);
+
+      // Delete related group members
+      await client.query(`DELETE FROM tbl_group_members WHERE group_id = ANY($1);`, [groupIds]);
+
+      // Delete related change log
+      await client.query(`DELETE FROM tbl_group_logs WHERE group_id = ANY($1);`, [groupIds]);
+
+      // Delete the expired groups
+      await client.query(`DELETE FROM tbl_groups WHERE group_id = ANY($1);`, [groupIds]);
+
+      await client.query("COMMIT");
+      return;
+    } catch (error) {
+      await client.query("ROLLBACK");
       console.error("Error in fetching group logs:", error.message);
       throw error;
     }

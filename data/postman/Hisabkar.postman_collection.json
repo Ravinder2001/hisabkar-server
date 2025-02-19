@@ -1,0 +1,609 @@
+{
+  "info": {
+    "_postman_id": "e3c7ab7e-09fa-4529-a692-12d8fe0df7bc",
+    "name": "Hisabkar",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34278632",
+    "_collection_link": "https://universal-meadow-465468.postman.co/workspace/Personal-GS-Development~b280d7be-e77a-440f-83f3-d46341789706/collection/34278632-e3c7ab7e-09fa-4529-a692-12d8fe0df7bc?action=share&source=collection_link&creator=34278632"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Vishal\",\r\n    \"email\": \"test222@gmail.com\",\r\n    \"upiAddress\": \"123@test\",\r\n    \"otp\": \"545202\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rvnegi786@gmail.com\",\r\n    \"otp\": \"393471\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod}}/user/login",
+              "host": ["{{prod}}"],
+              "path": ["user", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Google Sign In",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"token\": \"ya29.a0AXeO80TxXLUhoDShds9osnDNK2U9OEq5wC9oGv8mdgRiIxBbV5bYn1TV0c_MZBPJ63CGv2GfTV_Y0o1Ly7Ut1vD_MWkquFB0zeH_jqeee0ZXA5BLNZ-qgbBs0NPWPCEaPGHRufDsCFUF2WT16xNeRJg-tIfV7KXcIuAaCgYKAYUSARMSFQHGX2Mit_-szcW2ThAnczJUv1crjA0170\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user/google-signin",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user", "google-signin"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send OTP",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user/send-otp/rvnegi786@gmail.com",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user", "send-otp", "rvnegi786@gmail.com"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Login OTP",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user/login-send-otp/rvnegi786@gmail.com",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user", "login-send-otp", "rvnegi786@gmail.com"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile Details",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Availibity Status",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user/toggleAvailibiltyStatus",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user", "toggleAvailibiltyStatus"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile Details",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Ravinder Singh Negi\",\r\n    \"avatar\": \"https://api.multiavatar.com//7.x/adventurer/svg?seed=16&gender=male\",\r\n    \"is_available\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate New Avatars",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/user/generateAvatars",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["user", "generateAvatars"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Group",
+      "item": [
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"groupTypeId\":1,\r\n    \"groupName\":\"Jan Expense\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/group/createGroup",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "createGroup"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Join Group",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/joinGroup/491419",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "joinGroup", "491419"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Leave Group",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/leaveGroup/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "leaveGroup", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Group Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/single/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "single", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Expense Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/expenseLogs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "expenseLogs", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Group Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/groupTypeList",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "groupTypeList"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my Pairs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/myPairs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "myPairs", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Group Settlement",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/toggleGroupSettlement/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "toggleGroupSettlement", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Group Visibility",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/toggleGroupVisibilty/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "toggleGroupVisibilty", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Group Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/groupLogs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "groupLogs", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Spend Analysis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/group/spendAnalysis/17/-1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["group", "spendAnalysis", "17", "-1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Expense",
+      "item": [
+        {
+          "name": "Add Expense",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"expenseName\": \"Taxi Faressss\",\r\n    \"description\": \"Cricket matach tickets\",\r\n    \"expenseTypeId\": 1,\r\n    \"amount\": 200,\r\n    \"members\": [\r\n        {\r\n            \"userId\": 1,\r\n            \"amount\": 50\r\n        },\r\n\r\n        {\r\n            \"userId\": 5,\r\n            \"amount\": 100\r\n        },\r\n        {\r\n            \"userId\": 6,\r\n            \"amount\": 50\r\n        }\r\n    ],\r\n    \"splitType\": \"EQUAL\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/expense/addExpense/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["expense", "addExpense", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Expense",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:7777/expense/1/56",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["expense", "1", "56"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Edit Expense",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"expenseName\": \"Taxi Fare\",\r\n    \"expenseTypeId\": 1,\r\n    \"amount\": 200,\r\n    \"members\": [\r\n        {\r\n            \"userId\": 1,\r\n            \"amount\": 100\r\n        },\r\n        {\r\n            \"userId\": 4,\r\n            \"amount\": 100\r\n        }\r\n    ],\r\n    \"splitType\": \"EQUAL\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/expense/editExpense/1/22",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["expense", "editExpense", "1", "22"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Expenses",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"expenseName\": \"Taxi Fare\",\r\n    \"amount\": 101,\r\n    \"members\": [\r\n        {\r\n            \"userId\": 1,\r\n            \"amount\": 50\r\n        },\r\n        {\r\n            \"userId\": 4,\r\n            \"amount\": 50\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/expense/getAllExpenses/17",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["expense", "getAllExpenses", "17"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Expense Type List",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"expenseName\": \"Taxi Fare\",\r\n    \"amount\": 101,\r\n    \"members\": [\r\n        {\r\n            \"userId\": 1,\r\n            \"amount\": 50\r\n        },\r\n        {\r\n            \"userId\": 4,\r\n            \"amount\": 50\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:7777/expense/expenseTypeList",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7777",
+              "path": ["expense", "expenseTypeList"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Subscribe",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJoaXNhYmthci1zZXJ2ZXIiLCJpZCI6NCwibmFtZSI6IlJhdmluZGVyIFNpbmdoIE5lZ2kiLCJyb2xlIjoiQURNSU4iLCJhdmF0YXIiOm51bGwsImlhdCI6MTczODA1MzI5MiwiZXhwIjoxNzQ2NjkzMjkyfQ.zenpV0AAqSHOHqQaNO9LU35W9A0Vw643Z7TaeUFxByM",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "localhost",
+      "value": "http://localhost:7777",
+      "type": "string"
+    },
+    {
+      "key": "prod",
+      "value": "https://hisabkar-prod-server.vercel.app/",
+      "type": "string"
+    }
+  ]
+}
