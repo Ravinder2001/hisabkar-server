@@ -28,7 +28,7 @@ Hisabkar is a feature-rich expense splitting application with a robust backend b
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/hisabkar-server.git
+   git clone https://github.com/Ravinder2001/hisabkar-server.git
    cd hisabkar-server
    ```
 2. Install dependencies
