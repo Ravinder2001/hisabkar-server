@@ -21,7 +21,7 @@ module.exports = {
           // Send notifications to each subscription
           const payload = {
             title: "New Expense Added",
-            body: `A new expense has been added to ${response.groupData.group_name}.`,
+            body: `${response.expense_data.name} has added ₹${response.expenseData[0].amount} to ${response.groupData.group_name}.`,
             group_id: req.params.group_id,
           };
           subscriptions.forEach((sub) => sendNotificationsToUsers(sub, payload));
