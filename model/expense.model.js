@@ -56,10 +56,26 @@ module.exports = {
 
       // Step 1: Add Expense
       const expenseResult = await client.query(
-        `INSERT INTO tbl_expenses (group_id,expense_type_id, expense_name, amount, paid_by,description,split_type) 
-         VALUES ($1, $2, $3, $4, $5,$6,$7) RETURNING expense_id`,
+        `WITH inserted_expense AS (
+          INSERT INTO tbl_expenses (
+              group_id,
+              expense_type_id, 
+              expense_name, 
+              amount, 
+              paid_by,
+              description,
+              split_type
+          ) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING expense_id, paid_by
+      )
+      SELECT inserted_expense.expense_id, tbl_users.name
+      FROM inserted_expense
+      LEFT JOIN tbl_users ON tbl_users.user_id = inserted_expense.paid_by;
+      `,
         [groupId, expenseTypeId, expenseName, amount, paidBy, description, splitType]
       );
+      const expense_data = expenseResult.rows[0];
       const expense_id = expenseResult.rows[0].expense_id;
 
       // Step 2: Add Expense Members
@@ -93,7 +109,7 @@ module.exports = {
 
       const expenseData = await getExpenseById({ groupId, userId: paidBy, expenseId: expense_id });
       await client.query("COMMIT");
-      return { expenseData, groupData: groupData.rows[0] };
+      return { expenseData, groupData: groupData.rows[0], expense_data };
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Error in creating group:", error.message);
