@@ -100,7 +100,7 @@ module.exports = {
       );
       await client.query(
         `
-        INSERT INTO tbl_user_options(user_id,availibilty_status,created_at) VALUES($1,$2)
+        INSERT INTO tbl_user_options(user_id,availibilty_status,created_at) VALUES($1,$2,$3)
       `,
         [UserID, true, generateTimestamp()]
       );
