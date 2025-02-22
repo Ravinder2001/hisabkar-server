@@ -434,7 +434,9 @@ LEFT JOIN tbl_expenses e
     WHEN gl.action_type IN ('EDIT', 'DELETE') THEN gl.expense_id
     ELSE NULL
   END
-WHERE gl.group_id = $1`;
+WHERE gl.group_id = $1
+ORDER BY gl.created_at DESC
+`;
 
       const queryParams = [group_id];
 
