@@ -5,6 +5,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const moment = require("moment");
 const helmet = require("helmet");
+const serverless = require("serverless-http");
 
 // const { Server } = require("socket.io");
 
@@ -103,7 +104,10 @@ app.use((err, req, res, next) => {
 app.use(morgan(":method :url :status - userId: :user - :ist-date"));
 
 app.use("/", mainRouter);
+app.use("/.netlify/functions/api", mainRouter);
 
 app.listen(port, () => {
   process.stdout.write(`Server is running on port ${port}\n`);
 });
+
+module.exports.handler = serverless(app);
