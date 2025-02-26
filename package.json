@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "nodemon index.js",
     "start:dev": "env-cmd -f .env.dev npm run start",
     "start:prod": "env-cmd -f .env.prod npm run start",
     "lint": "eslint \"**/*.{js,jsx}\"",
@@ -37,6 +37,7 @@
     "passport-jwt": "^4.0.1",
     "path": "^0.12.7",
     "pg": "^8.11.5",
+    "serverless-http": "^3.2.0",
     "socket.io": "^4.7.5",
     "uuid": "^10.0.0",
     "web-push": "^3.6.7"
