@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "nodemon index.js",
     "start:dev": "env-cmd -f .env.dev npm run start",
     "start:prod": "env-cmd -f .env.prod npm run start",
     "lint": "eslint \"**/*.{js,jsx}\"",
