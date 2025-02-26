@@ -5,18 +5,19 @@ const cors = require("cors");
 const morgan = require("morgan");
 const moment = require("moment");
 const helmet = require("helmet");
+const serverless = require("serverless-http");
 
 // const { Server } = require("socket.io");
 
 const mainRouter = require("./routes/routes");
-const config = require("./configuration/config");
+// const config = require("./configuration/config");
 const Messages = require("./utils/constant/messages");
 const { encryptData } = require("./utils/encryption");
 
 require("./jobs/cronJob");
 require("./configuration/db");
 
-const port = config.PORT;
+// const port = config.PORT;
 
 const app = express();
 
@@ -53,7 +54,6 @@ app.use((req, res, next) => {
       originalSend.call(this, data);
     }
   };
-
   next();
 });
 
@@ -104,6 +104,8 @@ app.use(morgan(":method :url :status - userId: :user - :ist-date"));
 
 app.use("/", mainRouter);
 
-app.listen(port, () => {
-  process.stdout.write(`Server is running on port ${port}\n`);
-});
+// app.listen(port, () => {
+//   process.stdout.write(`Server is running on port ${port}\n`);
+// });
+
+module.exports.handler = serverless(app);
