@@ -104,7 +104,7 @@ app.use((err, req, res, next) => {
 app.use(morgan(":method :url :status - userId: :user - :ist-date"));
 
 app.use("/", mainRouter);
-app.use("/.netlify/functions/api", mainRouter);
+app.use("/.netlify/functions/app", mainRouter);
 
 app.listen(port, () => {
   process.stdout.write(`Server is running on port ${port}\n`);
