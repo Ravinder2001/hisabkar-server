@@ -9,13 +9,13 @@ const serverless = require("serverless-http");
 
 // const { Server } = require("socket.io");
 
-const mainRouter = require("./routes/routes");
-const config = require("./configuration/config");
-const Messages = require("./utils/constant/messages");
-const { encryptData } = require("./utils/encryption");
+const mainRouter = require("../routes/routes");
+const config = require("../configuration/config");
+const Messages = require("../utils/constant/messages");
+const { encryptData } = require("../utils/encryption");
 
-require("./jobs/cronJob");
-require("./configuration/db");
+require("../jobs/cronJob");
+require("../configuration/db");
 
 const port = config.PORT;
 

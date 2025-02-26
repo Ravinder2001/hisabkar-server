@@ -11,7 +11,8 @@
     "lint:fix": "eslint \"**/*.{js,jsx}\" --quiet --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "pc": "yarn lint --fix && yarn format",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "build": "netlify deploy --prod"
   },
   "keywords": [],
   "author": "",
