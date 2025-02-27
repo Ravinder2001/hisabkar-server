@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS tbl_group_logs (
   action_type VARCHAR(15) NOT NULL CHECK (action_type IN ('EDIT', 'DELETE', 'SETTLED', 'UNSETTLED' ,'JOINED', 'LEFT')),
   old_amount DECIMAL(10,2), -- Nullable for non-expense actions
   new_amount DECIMAL(10,2), -- Nullable for non-expense actions
+  details JSONB DEFAULT NULL, -- New column to store JSON data
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

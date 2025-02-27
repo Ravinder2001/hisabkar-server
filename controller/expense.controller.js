@@ -65,15 +65,8 @@ module.exports = {
   },
   deleteExpense: async (req, res) => {
     try {
-      const response = await expenseModel.deleteExpense(req.params.expense_id);
-      await trackExpenseChange({
-        groupId: response.groupId,
-        expenseId: req.params.expense_id,
-        userId: req.user.user_id,
-        actionType: "DELETE",
-        oldAmount: null,
-        newAmount: null,
-      });
+      await expenseModel.deleteExpense(req.params.expense_id, req.user.user_id);
+
       return common.successResponse(res, Messages.SUCCESS, HttpStatus.OK);
     } catch (error) {
       common.handleAsyncError(error, res);
