@@ -215,18 +215,67 @@ module.exports = {
       throw error;
     }
   },
-  deleteExpense: async (expenseId) => {
+  deleteExpense: async (expenseId, deletedByUserId) => {
     try {
       await client.query("BEGIN");
 
       // Step 1: Fetch the Expense Details
-      const expenseResult = await client.query(`SELECT group_id, paid_by FROM tbl_expenses WHERE expense_id = $1`, [expenseId]);
+      const expenseResult = await client.query(
+        `SELECT group_id, paid_by, amount, expense_name, description, expense_type_id, split_type 
+         FROM tbl_expenses 
+         WHERE expense_id = $1`,
+        [expenseId]
+      );
 
       if (expenseResult.rows.length === 0) {
         throw new Error("Expense not found");
       }
 
-      const { group_id } = expenseResult.rows[0];
+      const expense = expenseResult.rows[0];
+
+      // Step 2: Fetch Expense Members
+      const membersResult = await client.query(
+        `SELECT user_id, amount 
+         FROM tbl_expense_members 
+         WHERE expense_id = $1`,
+        [expenseId]
+      );
+
+      const members = membersResult.rows;
+
+      // Step 3: Construct JSON details
+      const expenseDetails = {
+        expense: {
+          expense_id: expenseId,
+          group_id: expense.group_id,
+          expense_type_id: expense.expense_type_id,
+          expense_name: expense.expense_name,
+          description: expense.description,
+          amount: parseFloat(expense.amount), // Ensure numeric values are properly formatted
+          paid_by: expense.paid_by,
+          split_type: expense.split_type,
+        },
+        members: members.map((member) => ({
+          user_id: member.user_id,
+          amount: parseFloat(member.amount), // Ensure numeric values are properly formatted
+        })),
+      };
+
+      // Step 4: Log the deletion in tbl_group_logs with JSON details
+      await client.query(
+        `INSERT INTO tbl_group_logs (
+          group_id, expense_id, user_id, action_type, old_amount, new_amount, details
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          expense.group_id,
+          expenseId,
+          deletedByUserId,
+          "DELETE",
+          expense.amount,
+          0,
+          JSON.stringify(expenseDetails), // Convert to JSON string for insertion
+        ]
+      );
 
       // Step 3: Remove Expense Members
       await client.query(`DELETE FROM tbl_expense_members WHERE expense_id = $1`, [expenseId]);
@@ -236,9 +285,7 @@ module.exports = {
 
       await client.query("COMMIT");
       console.log("Expense deleted successfully.");
-      return {
-        groupId: group_id,
-      };
+      return;
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Error in deleting expense:", error.message);

@@ -416,7 +416,7 @@ GROUP BY g.group_id;
     try {
       // Base query for fetching group logs with the join to get the expense name if action type involves expenses
       let query = `
- SELECT DISTINCT
+SELECT DISTINCT
   gl.log_id,
   u.name,
   gl.action_type,
@@ -424,7 +424,24 @@ GROUP BY g.group_id;
   gl.new_amount,
   gl.created_at,
   e.expense_id,
-  e.expense_name
+  e.expense_name,
+  CASE 
+    WHEN gl.details IS NOT NULL AND jsonb_typeof(gl.details) = 'object' THEN 
+      jsonb_build_object(
+        'amount', (gl.details->'expense'->>'amount')::NUMERIC,
+        'expense_name', gl.details->'expense'->>'expense_name',
+        'members', (
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'amount', m->'amount',
+              'name', (SELECT name FROM tbl_users WHERE user_id = (m->>'user_id')::integer)
+            )
+          )
+          FROM jsonb_array_elements(gl.details->'members') AS m
+        )
+      )
+    ELSE NULL
+  END AS details
 FROM tbl_group_logs gl
 LEFT JOIN tbl_users u 
   ON gl.user_id = u.user_id
@@ -435,7 +452,8 @@ LEFT JOIN tbl_expenses e
     ELSE NULL
   END
 WHERE gl.group_id = $1
-ORDER BY gl.created_at DESC
+ORDER BY gl.created_at DESC;
+
 `;
 
       const queryParams = [group_id];
