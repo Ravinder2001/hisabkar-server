@@ -22,9 +22,10 @@ const port = config.PORT;
 const app = express();
 
 const corsOptions = {
-  origin: "*", // Allow requests from this org
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allow only GET and POST requests
-  optionsSuccessStatus: 200, // Some le gacy browsers (IE11, various SmartTVs) choke on 204
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  optionsSuccessStatus: 200,
+  credentials: true, // Enable credentials (cookies, authorization headers) if needed
 };
 
 morgan.token("ist-date", () => {
@@ -36,9 +37,10 @@ morgan.token("user", (req) => {
   return req.userId || "Guest";
 });
 
-app.use(cors(corsOptions));
 app.disable("x-powered-by"); // Disable the X-Powered-By header
 app.use(helmet());
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 // app.use(encryptResponseMiddleware);
 app.use((req, res, next) => {
   const originalSend = res.json; // Store original res.json
